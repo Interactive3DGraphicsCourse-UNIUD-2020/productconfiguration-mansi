@@ -20,6 +20,7 @@ REQUISITI [ver 1]
 | 3 | L'utente deve poter selezionare di quale materiale deve essere composta una specifica parte dell'oggetto |
 | 3A | deve quindi poter selezionare la parte su cui agire |
 | 3B | deve quindi poter selezionare il nuovo materiale |
+| 4  | il sistema deve garantire buone performance su dispositivi mobili |
 
 
 

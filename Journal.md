@@ -36,7 +36,7 @@ ROADMAP [ver 1]
 | 7 |Creazione del sistema finale: luci, prodotto, GUI etc. |Principale |
 | 8 |Sistema per il controllo delle luci | Opzionale |
 
-### Lavoro svolto
+### Lavoro svolto:
 
 - Scelta del prodotto finale
 - Scelta del software di modellazione e successiva creazione di un primo modello composto da 2 mesh come punto di partenza.
@@ -58,8 +58,20 @@ Funzione per creare dinamicamente nuovi materiali una volta selezionati vertex e
 
 ---
 ---
-#### Giorno 2: 
+#### Giorno 2: 08/02/2020
 
+### Lavoro svolto:
+- Implementazione BRDF Lambertiana + Microfacets
+- Modellazione del primo prototipo di modello
+- Primi test di rendering
+
+Immagini del primo modello:
+
+![PrimoModello](images/journal/img1.png)
+
+Immagine del primo test di rendering:
+
+![PrimoRender](images/journal/img1.png)
 
 
 ---

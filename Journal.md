@@ -76,7 +76,21 @@ Immagine del primo test di rendering:
 
 ---
 ---
-#### Giorno 3:
+#### Giorno 3: 10/02/2018
+- Aggiunta di una cubemap
+
+![Cubemap](images/journal/img1.png)
+
+- Implementazione della GUI per interagire con l'oggetto tramite la liberaria di THREE.JS
+
+![PrimaGUI](images/journal/img1.png)
+
+- Implementato un sistema che interagisce con la GUI e cambia a run-time le modifiche dell'utente sui materiali
+
+![GIF modifiche](images/journal/img1.png)
+
+- Update del Journal
+- Pulizia del codice
 
 
 

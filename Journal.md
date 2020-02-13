@@ -49,11 +49,11 @@ Primo modello di test
 
 Funzione di assegnazione di un nuovo materiale a una specifica parte del modello:
 
-![Funzione1](images/journal/img1.png)
+![Funzione1](images/journal/img2.png)
 
 Funzione per creare dinamicamente nuovi materiali una volta selezionati vertex e fragment shaders:
 
-![Funzione2](images/journal/img1.png)
+![Funzione2](images/journal/img3.png)
 
 
 ---
@@ -67,11 +67,12 @@ Funzione per creare dinamicamente nuovi materiali una volta selezionati vertex e
 
 Immagini del primo modello:
 
-![PrimoModello](images/journal/img1.png)
+![PrimoModello](images/journal/img4.png)
+![PrimoRender](images/journal/img5.png)
 
 Immagine del primo test di rendering:
 
-![PrimoRender](images/journal/img1.png)
+![Cubemap](images/journal/img6.png)
 
 
 ---
@@ -79,19 +80,38 @@ Immagine del primo test di rendering:
 #### Giorno 3: 10/02/2018
 - Aggiunta di una cubemap
 
-![Cubemap](images/journal/img1.png)
+![Cubemap](/textures/cubemap/StandardCubeMap.png)
 
-- Implementazione della GUI per interagire con l'oggetto tramite la liberaria di THREE.JS
+- Implementazione della prima GUI per interagire con l'oggetto tramite la liberaria di THREE.JS
 
-![PrimaGUI](images/journal/img1.png)
+![PrimaGUI](images/journal/img7.png)
 
 - Implementato un sistema che interagisce con la GUI e cambia a run-time le modifiche dell'utente sui materiali
 
-![GIF modifiche](images/journal/img1.png)
 
-- Update del Journal
 - Pulizia del codice
+  
+---
+---
+#### Giorno 4: 13/02/2018
+
+- Creazione del modello finale
+
+![Modello Finale](images/journal/img8.png)
+
+- Creazione di due nuovi materiali con la BRDF Lambertiana + Microfacet: Oro e Alluminio
+- Implementazione dello Shader (vertex+fragment) per riflettere la luce della cubemap ("glossy reflection shader")
+
+![Glossy Reflection gold](images/journal/img9.png)
+
+- Nuova versione della gui e refactoring del codice
 
 
+---
+---
+#### Giorno 5:
 
+---
+---
+#### Giorno 6:
 

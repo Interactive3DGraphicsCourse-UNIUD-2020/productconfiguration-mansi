@@ -70,7 +70,7 @@ Immagini del primo modello:
 ![PrimoModello](images/journal/img4.png)
 ![PrimoRender](images/journal/img5.png)
 
-Immagine del primo test di rendering:
+Immagine del primo test di rendering (plastica opaca e lucida):
 
 ![Cubemap](images/journal/img6.png)
 
@@ -104,12 +104,18 @@ Immagine del primo test di rendering:
 
 ![Glossy Reflection gold](images/journal/img9.png)
 
-- Nuova versione della gui e refactoring del codice
-
+- Miglioramento della gui e refactoring del codice
 
 ---
 ---
-#### Giorno 5:
+#### Giorno 5: 15/02/2018
+
+- Modifica di alcune parti del modello, cause problemi con tangenti e normali in fase di fragment shading
+- Aggiornamento della GUI e modifiche sparse sul codice
+- Aggiunta del materiale Alluminio e Argento
+- La GUI ora non viene istanziata con parametri di default ma coerenti con la configurazione iniziale del modello
+- Implementata la possibilità di aggiungere una cubemap ai materiali che utilizzano lo shader glossy (si prevede di unire i due shader: glossy + lambert così da poter illuminare l'oggetto sia dalla cubemap che da eventuali luci aggiuntive.)
+  
 
 ---
 ---

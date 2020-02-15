@@ -21,6 +21,8 @@
             <script src="libs/OrbitControls.js"></script>
 			<script src="libs/GLTFLoader.js"></script>
 			<script src='libs/dat.gui.min.js'></script>
+			<script src='libs/BufferGeometryUtils.js'></script>
+
 		</head>
 		-------------- Andrea Mansi UNIUD --- Progetto Interactive 3D Graphics --- Web Product Configurator ---
 			
@@ -48,78 +50,75 @@
 			</script>
 		
 			<script type="text/x-glsl" id="GlossyFragment">
-					precision highp float;
-					precision highp int;
-					varying vec3 vNormal;
-					varying vec3 vTangent;
-					varying vec3 vBitangent;
-					varying vec3 vPosition;
-					varying vec2 vUv;
-					uniform vec3 cspec;
-					uniform sampler2D normalMap;
-					uniform samplerCube envMap;
-					uniform vec2 normalScale;
-					uniform float roughness;
-		
-					const float PI = 3.14159;
-					#define saturate(a) clamp( a, 0.0, 1.0 )
-		
-					float pow2( const in float x ) { return x*x; }
-		
-					float getSpecularMIPLevel( const in float blinnShininessExponent, const in int maxMIPLevel ) {
-						 float maxMIPLevelScalar = float( maxMIPLevel );
-						 float desiredMIPLevel = maxMIPLevelScalar - 0.79248 - 0.5 * log2( pow2( blinnShininessExponent ) + 1.0 );
-						 return clamp( desiredMIPLevel, 0.0, maxMIPLevelScalar );
-					 }
-		
-					float GGXRoughnessToBlinnExponent( const in float ggxRoughness ) {
-						  return ( 2.0 / pow2( ggxRoughness + 0.0001 ) - 2.0 );
-					  }
-		
-					// http://en.wikibooks.org/wiki/GLSL_Programming/Applying_Matrix_Transformations
-					vec3 inverseTransformDirection( in vec3 dir, in mat4 matrix ) {
-						return normalize( ( vec4( dir, 0.0 ) * matrix ).xyz );
-					}
-		
-					vec3 BRDF_Specular_GGX_Environment( vec3 normal, vec3 viewDir, const in vec3 cspec, const in float roughness ) {
-		
-						float dotNV = saturate( dot( normal, viewDir ) );
-						const vec4 c0 = vec4( - 1, - 0.0275, - 0.572, 0.022 );
-						const vec4 c1 = vec4( 1, 0.0425, 1.04, - 0.04 );
-						vec4 r = roughness * c0 + c1;
-						float a004 = min( r.x * r.x, exp2( - 9.28 * dotNV ) ) * r.x + r.y;
-						vec2 AB = vec2( -1.04, 1.04 ) * a004 + r.zw;
-						return cspec * AB.x + AB.y;
-		
-					}
-		
-					void main() {
-						vec3 normal = normalize( vNormal );
-						vec3 tangent = normalize( vTangent );
-						vec3 bitangent = normalize( vBitangent );
-						mat3 vTBN = mat3( tangent, bitangent, normal );
-						
-						vec3 mapN = texture2D( normalMap, vUv ).xyz * 2.0 - 1.0;
-						mapN.xy = normalScale * mapN.xy;
-						normal.xy = normalScale * normal.xy;
-
-						vec3 n = normalize( vTBN * mapN ); // normal was mapN
-						vec3 v = normalize( -vPosition);
-						vec3 vReflect = reflect(vPosition,n);
-						vec3 r = inverseTransformDirection( vReflect, viewMatrix );
-		
-						float blinnShininessExponent = GGXRoughnessToBlinnExponent(roughness);
-						float specularMIPLevel = getSpecularMIPLevel(blinnShininessExponent,8 );
-		
-						 vec3 envLight = textureCubeLodEXT( envMap, vec3(-r.x, r.yz), specularMIPLevel ).rgb;
-						 // texture in sRGB, linearize
-						envLight = pow( envLight, vec3(2.2));
-						
-						vec3 outRadiance = envLight*BRDF_Specular_GGX_Environment(n, v, cspec, roughness);
-						// gamma encode the final value
-						gl_FragColor = vec4(pow( outRadiance, vec3(1.0/2.2)), 1.0);
-						//gl_FragColor = vec4(r,1.0);
-					}
+				precision highp float;
+				precision highp int;
+				varying vec3 vNormal;
+				varying vec3 vTangent;
+				varying vec3 vBitangent;
+				varying vec3 vPosition;
+				varying vec2 vUv;
+				uniform vec3 cspec;
+				uniform sampler2D normalMap;
+				uniform samplerCube envMap;
+				uniform vec2 normalScale;
+				uniform float roughness;
+	
+				const float PI = 3.14159;
+				#define saturate(a) clamp( a, 0.0, 1.0 )
+	
+				float pow2( const in float x ) { return x*x; }
+	
+				float getSpecularMIPLevel( const in float blinnShininessExponent, const in int maxMIPLevel ) {
+					 float maxMIPLevelScalar = float( maxMIPLevel );
+					 float desiredMIPLevel = maxMIPLevelScalar - 0.79248 - 0.5 * log2( pow2( blinnShininessExponent ) + 1.0 );
+					 return clamp( desiredMIPLevel, 0.0, maxMIPLevelScalar );
+				 }
+	
+				float GGXRoughnessToBlinnExponent( const in float ggxRoughness ) {
+					  return ( 2.0 / pow2( ggxRoughness + 0.0001 ) - 2.0 );
+				  }
+	
+				// http://en.wikibooks.org/wiki/GLSL_Programming/Applying_Matrix_Transformations
+				vec3 inverseTransformDirection( in vec3 dir, in mat4 matrix ) {
+					return normalize( ( vec4( dir, 0.0 ) * matrix ).xyz );
+				}
+	
+				vec3 BRDF_Specular_GGX_Environment( vec3 normal, vec3 viewDir, const in vec3 cspec, const in float roughness ) {
+	
+					float dotNV = saturate( dot( normal, viewDir ) );
+					const vec4 c0 = vec4( - 1, - 0.0275, - 0.572, 0.022 );
+					const vec4 c1 = vec4( 1, 0.0425, 1.04, - 0.04 );
+					vec4 r = roughness * c0 + c1;
+					float a004 = min( r.x * r.x, exp2( - 9.28 * dotNV ) ) * r.x + r.y;
+					vec2 AB = vec2( -1.04, 1.04 ) * a004 + r.zw;
+					return cspec * AB.x + AB.y;
+	
+				}
+	
+				void main() {
+					vec3 offset = vec3(1111.1,1111.1,1111.1);
+					vec3 normal = normalize( vNormal);
+					vec3 tangent = normalize( vTangent);
+					vec3 bitangent = normalize( vBitangent );
+					mat3 vTBN = mat3( tangent, bitangent, normal);
+					vec3 mapN = texture2D( normalMap, vUv ).xyz * 2.0 - 1.0;
+					mapN.xy = normalScale * mapN.xy;
+					vec3 n = normalize( vTBN * mapN );
+					vec3 v = normalize( -vPosition);
+					vec3 vReflect = reflect(vPosition,n);
+					vec3 r = inverseTransformDirection( vReflect, viewMatrix );
+	
+					float blinnShininessExponent = GGXRoughnessToBlinnExponent(roughness);
+					float specularMIPLevel = getSpecularMIPLevel(blinnShininessExponent, 8);
+	
+					 vec3 envLight = textureCubeLodEXT( envMap, vec3(-r.x, r.yz), specularMIPLevel ).rgb;
+					 // texture in sRGB, linearize
+					envLight = pow( envLight, vec3(2.2));
+					vec3 outRadiance = envLight*BRDF_Specular_GGX_Environment(n, v, cspec, roughness);
+					// gamma encode the final value
+					gl_FragColor = vec4(pow( outRadiance, vec3(1.0/2.2)), 1.0);
+					//gl_FragColor = vec4(r,1.0);
+				}
 			</script>
 
 			<script type="text/x-glsl" id="vertexBRDF_Lambertian_Microfacet">
@@ -277,58 +276,51 @@
 				var PointLightPosition2 = new THREE.Vector3(7,8,-7);
 				var PointLightPosition3 = new THREE.Vector3(15,6,-7);
 
-				var coldlightParameters = {
+				var lightParameters = {
 					red: 1.0,
 					green: 1.0,
 					blue: 1.0,
 					intensity: 1.0,};
 				
 				// Model Variables
-				var modelPath = "/models/finalModel.glb";
-                var modelParts;     // contains model's meshes
-                var modelMaterials; // contains starting model's materials for each mesh (material of index x is the x part's material)
+				var modelPath = "/models/finalModel2.glb";
+                var modelParts;     // contains all model's parts (meshes)
                 var numberOfParts = 5;
                 var modeLoaded = false;
 
-				var parametriSelezioneModello = {
-					parte1: {materialeSelezionato: "Plastica lucida", coloreSelezionato: 0xff0000,},
-					parte2: {materialeSelezionato: "Plastica lucida", coloreSelezionato: 0xff0000,},
-					parte3: {materialeSelezionato: "Plastica lucida", coloreSelezionato: 0xff0000,},
-					parte4: {materialeSelezionato: "Plastica lucida", coloreSelezionato: 0xff0000,},
-					parte5: {materialeSelezionato: "Plastica lucida", coloreSelezionato: 0xff0000,},
+				var parametriSelezioneModello = {	// values on code indicates starting properties of materials
+					//"Oro", "Alluminio","Plastica lucida", "Plastica opaca", "Pelle scura" , "Pelle chiara", "Pelle"
+					parte1: {materialeSelezionato: "Plastica opaca", coloreSelezionato: 0x000000,},
+					parte2: {materialeSelezionato: "Plastica opaca", coloreSelezionato: 0xffffff,},
+					parte3: {materialeSelezionato: "Plastica opaca", coloreSelezionato: 0xff0000,},
+					parte4: {materialeSelezionato: "Plastica opaca", coloreSelezionato: 0x000000,},
+					parte5: {materialeSelezionato: "Plastica opaca", coloreSelezionato: 0xff0000,},
 				}
 
                 // Shaders //
-                var basicVertex;
-                var basicFragment;
-
-				var glossyVertex;
-				var glossyFragment;
-
-				var vertexBRDFLambertianMicrofacet;
-				var fragmentBRDFLambertianMicrofacet;
+                var basicVertex; var basicFragment;				// basic fragment shader
+				var glossyVertex; var glossyFragment;			// glossy reflection from cubemap shader
+				var vertexLambMicro; var fragmentLambMicro;		// lambertian + microfacet shader
+				var vertexLambGlossy; var fragmentLambGlossy;	// lambertian + glossy shader
 
 				var normalMap;
 
-				// pre-defined Materials:
+				// pre-defined Materials: 
 					
-					// Opaque plastic
+				/*	// Opaque plastic
 					var OpaqueWhitePlastic, OpaqueBlackPlastic, OpaqueRedPlastic;
 					// Lucid plastic
 					var LucidWhitePlastic, LucidBlackPlastic, LucidRedPlastic;
-					// Metals
-					var GoldMetal, AluminiumMetal;
+				*/
 
-				// Materials CDIFF and CSPEC
-				var WhitePlastic_Cdiff = {red: 0.90, green: 0.90, blue: 0.90};
-				var BlackPlastic_Cdiff = {red: 0, green: 0, blue: 0};
-				var RedPlastic_Cdiff =   {red: 1, green: 0.05, blue: 0.05};
-				var Metal_Cdiff  = {red: 0.001, green: 0.001, blue: 0.001};
+				// Metals
+				var GoldMetal, AluminiumMetal, SilverMetal;
                 
                 var LucidPlastic_Cspec = {red: 0.04, green: 0.04, blue: 0.04,roughness: 0.275};
                 var OpaquePlastic_Cspec = {red: 0.04, green: 0.04, blue: 0.04,roughness: 0.8};
-				var Gold_Cspec = {red: 1.078, green: 0.782, blue: 0.344, roughness: 0.35};
-				var Aluminium_Cspec = {red: 0.913, green: 0.922, blue: 0.924, roughness: 0.475};
+
+				//var Gold_Cspec = {red: 1.078, green: 0.782, blue: 0.344, roughness: 0.35}; for brdf
+				//var Aluminium_Cspec = {red: 0.913, green: 0.922, blue: 0.924, roughness: 0.475}; for brdf
 
 				
 				function Start() {
@@ -352,8 +344,18 @@
 					/* ___________________________________________________________________________________________________________________________________________________________________________
 					>> Start code goes here:
 					*/
+
 					
 					
+					
+				}
+
+				function initializeModelMaterials(){
+					updateMaterialType(1);
+					updateMaterialType(2);
+					updateMaterialType(3);
+					updateMaterialType(4);
+					updateMaterialType(5);
 				}
 
 				function updateMaterialType(partnumber){
@@ -363,17 +365,19 @@
 				new_color = new THREE.Color(parametri.coloreSelezionato);
 
 					if(parametri.materialeSelezionato == "Plastica opaca"){		
-						new_uniforms = generateBRDFLambertianMicrofacetUniforms(OpaquePlastic_Cspec,{red:new_color.r,green:new_color.g,blue:new_color.b});
-						new_material = createMaterial(new_uniforms,vertexBRDFLambertianMicrofacet,fragmentBRDFLambertianMicrofacet);	
+						new_uniforms = generateLambertianUniforms(OpaquePlastic_Cspec,{red:new_color.r,green:new_color.g,blue:new_color.b});
+						new_material = createMaterial(new_uniforms,vertexLambMicro,fragmentLambMicro);	
 						changePartMaterial(part_to_update,new_material);
 					}else if(parametri.materialeSelezionato == "Plastica lucida"){
-						new_uniforms = generateBRDFLambertianMicrofacetUniforms(LucidPlastic_Cspec,{red:new_color.r,green:new_color.g,blue:new_color.b});
-						new_material = createMaterial(new_uniforms,vertexBRDFLambertianMicrofacet,fragmentBRDFLambertianMicrofacet);	
+						new_uniforms = generateLambertianUniforms(LucidPlastic_Cspec,{red:new_color.r,green:new_color.g,blue:new_color.b});
+						new_material = createMaterial(new_uniforms,vertexLambMicro,fragmentLambMicro);	
 						changePartMaterial(part_to_update,new_material);
 					}else if(parametri.materialeSelezionato == "Oro"){
 						changePartMaterial(part_to_update,GoldMetal);
 					}else if(parametri.materialeSelezionato == "Alluminio"){
 						changePartMaterial(part_to_update,AluminiumMetal);
+					}else if(parametri.materialeSelezionato == "Argento"){
+						changePartMaterial(part_to_update,SilverMetal);
 					}
 				}
 
@@ -384,52 +388,48 @@
 					if(partnumber == 4){return parametriSelezioneModello.parte4};
 					if(partnumber == 5){return parametriSelezioneModello.parte5};
 				}
-				
 
-				function generateBRDFLambertianMicrofacetUniforms(cspec,cdiff){
-					uniformsBRDFLambertianMicrofacet = {
+				function generateLambertianUniforms(cspec,cdiff){
+					lambertianUniforms = {
 						cspec:{ type: "v3", value: new THREE.Vector3(cspec.red,cspec.green,cspec.blue) },
 						cdiff:{ type: "v3", value: new THREE.Vector3(cdiff.red,cdiff.green,cdiff.blue) },
 						roughness: {type: "f", value: cspec.roughness},
 						pointLightPosition1:{ type: "v3", value: PointLightPosition1 },
-						clight1:{ type: "v3", value: new THREE.Vector3(coldlightParameters.red * coldlightParameters.intensity,coldlightParameters.green * coldlightParameters.intensity,coldlightParameters.blue * coldlightParameters.intensity) },
+						clight1:{ type: "v3", value: new THREE.Vector3(lightParameters.red * lightParameters.intensity,lightParameters.green * lightParameters.intensity,lightParameters.blue * lightParameters.intensity) },
 						pointLightPosition2:{ type: "v3", value: PointLightPosition2 },
-						clight2:{ type: "v3", value: new THREE.Vector3(coldlightParameters.red * coldlightParameters.intensity,coldlightParameters.green * coldlightParameters.intensity,coldlightParameters.blue * coldlightParameters.intensity) },
+						clight2:{ type: "v3", value: new THREE.Vector3(lightParameters.red * lightParameters.intensity,lightParameters.green * lightParameters.intensity,lightParameters.blue * lightParameters.intensity) },
 						pointLightPosition3:{ type: "v3", value: PointLightPosition3 },
-						clight3:{ type: "v3", value: new THREE.Vector3(coldlightParameters.red * coldlightParameters.intensity,coldlightParameters.green * coldlightParameters.intensity,coldlightParameters.blue * coldlightParameters.intensity) },
+						clight3:{ type: "v3", value: new THREE.Vector3(lightParameters.red * lightParameters.intensity,lightParameters.green * lightParameters.intensity,lightParameters.blue * lightParameters.intensity) },
 				    };
 
-                    return uniformsBRDFLambertianMicrofacet;
+                    return lambertianUniforms;
 				}
 
-				function generateMaterials(){
-                    OpaqueWhitePlasticUniforms = generateBRDFLambertianMicrofacetUniforms(OpaquePlastic_Cspec,WhitePlastic_Cdiff);
-                    OpaqueWhitePlastic = createMaterial(OpaqueWhitePlasticUniforms,vertexBRDFLambertianMicrofacet,fragmentBRDFLambertianMicrofacet);
-				
-                    OpaqueBlackPlasticUniforms = generateBRDFLambertianMicrofacetUniforms(OpaquePlastic_Cspec,BlackPlastic_Cdiff);
-                    OpaqueBlackPlastic = createMaterial(OpaqueBlackPlasticUniforms,vertexBRDFLambertianMicrofacet,fragmentBRDFLambertianMicrofacet);
-				
-                    OpaqueRedPlasticUniforms = generateBRDFLambertianMicrofacetUniforms(OpaquePlastic_Cspec,RedPlastic_Cdiff);
-                    OpaqueRedPlastic = createMaterial(OpaqueRedPlasticUniforms,vertexBRDFLambertianMicrofacet,fragmentBRDFLambertianMicrofacet);
-				
-                    LucidRedPlasticUniforms = generateBRDFLambertianMicrofacetUniforms(LucidPlastic_Cspec,RedPlastic_Cdiff);
-                    LucidRedPlastic = createMaterial(LucidRedPlasticUniforms,vertexBRDFLambertianMicrofacet,fragmentBRDFLambertianMicrofacet);
-				
+				function generateGlossyUniforms(cspec,normalMap,envMap,XnormScale,YnormScale,roughness){
+					var glossyUniforms = {
+				    	cspec:	{ type: "v3", value: new THREE.Vector3(cspec.x,cspec.y,cspec.z) },
+				    	normalMap:	{ type: "t", value: normalMap},
+						normalScale: {type: "v2", value: new THREE.Vector2(XnormScale,YnormScale)},
+						envMap:	{ type: "t", value: envMap},
+						roughness: { type: "f", value: roughness},
+						};
+					return glossyUniforms;
+				}
 
-                    LucidWhitePlasticUniforms = generateBRDFLambertianMicrofacetUniforms(LucidPlastic_Cspec,WhitePlastic_Cdiff);
-                    LucidWhitePlastic = createMaterial(LucidWhitePlasticUniforms,vertexBRDFLambertianMicrofacet,fragmentBRDFLambertianMicrofacet);
-				
-                    LucidBlackPlasticUniforms = generateBRDFLambertianMicrofacetUniforms(LucidPlastic_Cspec,BlackPlastic_Cdiff);
-                    LucidBlackPlastic = createMaterial(LucidBlackPlasticUniforms,vertexBRDFLambertianMicrofacet,fragmentBRDFLambertianMicrofacet);
-				
-					GoldMetalUniforms = generateBRDFLambertianMicrofacetUniforms(Gold_Cspec,Metal_Cdiff);
-					GoldMetal = createMaterial(GoldMetalUniforms,vertexBRDFLambertianMicrofacet,fragmentBRDFLambertianMicrofacet);
+				//useless now?
+				function generatePredefinedMaterials(){
 
-					AluminiumMetalUniforms = generateBRDFLambertianMicrofacetUniforms(Aluminium_Cspec,Metal_Cdiff);
-					AluminiumMetal = createMaterial(AluminiumMetalUniforms,vertexBRDFLambertianMicrofacet,fragmentBRDFLambertianMicrofacet);
+				GoldGlossyUniforms = generateGlossyUniforms(new THREE.Vector3(1.078,0.782,0.344),normalMap,cubemap,0.075,0.075,0.1);
+				GoldMetal= createMaterial(GoldGlossyUniforms,glossyVertex,glossyFragment);
+
+				AluminiumGlossyUniforms = generateGlossyUniforms(new THREE.Vector3(0.913,0.922,0.924),normalMap,cubemap,0.075,0.075,0.45);
+				AluminiumMetal= createMaterial(AluminiumGlossyUniforms,glossyVertex,glossyFragment);
+
+				SilverGlossyUniforms = generateGlossyUniforms(new THREE.Vector3(0.992,0.980,0.935),normalMap,cubemap,0.075,0.075,0.085);
+				SilverMetal= createMaterial(SilverGlossyUniforms,glossyVertex,glossyFragment);
+
                 }
 				
-
                 function createMaterial(uniforms,vertexShader,fragmentShader){
 					materialExtensions = {
 						shaderTextureLOD: true // set to use shader texture LOD
@@ -450,130 +450,110 @@
                 function loadGLTFModel(){
                     var loader = new THREE.GLTFLoader();
                     loader.load(modelPath,
-                       function ( gltf ) {
-                       console.log(gltf.scene);
-                       //modelParts[0] = gltf.scene.children[0]; 
-					   modelParts[1] = gltf.scene.children[1];
-					   modelParts[2] = gltf.scene.children[2];
-					   modelParts[3] = gltf.scene.children[3];
-					   modelParts[4] = gltf.scene.children[4];
-                       modelParts[5] = gltf.scene.children[5];
+                    	function ( gltf ) {
+                    	console.log(gltf.scene);
 
-                       //scene.add(modelParts[0]);
-					   scene.add(modelParts[1]);
-					   scene.add(modelParts[2]);
-					   scene.add(modelParts[3]);
-					   scene.add(modelParts[4]);
-                       scene.add(modelParts[5]);
+						// saving model's part
+						modelParts[1] = gltf.scene.children[1];
+						modelParts[2] = gltf.scene.children[2];
+						modelParts[3] = gltf.scene.children[3];
+						modelParts[4] = gltf.scene.children[4];
+                    	modelParts[5] = gltf.scene.children[5];
 
-                        /* broken?
-                       var z_offset = 5;
-                       modelParts[1].position.z = z_offset;
-                       modelParts[2].position.z = z_offset;
-                       modelParts[3].position.z = z_offset;
-                       modelParts[4].position.z = z_offset;
-                       modelParts[5].position.z = z_offset;
-                        */
-                        
-                       generateMaterials();
-                    
-                        // a cosa serviva? bo
-                       //modelMaterials[0] = new createMaterial(uniforms,basicVertex,basicFragmentTest); 
-					   //modelMaterials[1] = new createMaterial(uniforms,basicVertex,basicFragment); 
-					   //modelMaterials[2] = new createMaterial(uniforms,basicVertex,basicFragment); 
-					   //modelMaterials[3] = new createMaterial(uniforms,basicVertex,basicFragment); 
-					   //modelMaterials[4] = new createMaterial(uniforms,basicVertex,basicFragmentTest); 
+						// adding parts
+						scene.add(modelParts[1]);
+						scene.add(modelParts[2]);
+						scene.add(modelParts[3]);
+						scene.add(modelParts[4]);
+						scene.add(modelParts[5]);
 
-					   var GlossyUuniforms = {
-				    	cspec:	{ type: "v3", value: new THREE.Vector3(1.000,0.782,0.344) },
-				    	normalMap:	{ type: "t", value: normalMap},
-						normalScale: {type: "v2", value: new THREE.Vector2(0,0)},
-						envMap:	{ type: "t", value: cubemap},
-						roughness: { type: "f", value: 0.45},
-						};
-	
-						console.log(GlossyUuniforms);
-						glossyMaterial = createMaterial(GlossyUuniforms,glossyVertex,glossyFragment);
+						// computing tangents for every single part
+						THREE.BufferGeometryUtils.computeTangents(modelParts[1].geometry);
+						THREE.BufferGeometryUtils.computeTangents(modelParts[2].geometry);	
+						THREE.BufferGeometryUtils.computeTangents(modelParts[3].geometry);	
+						THREE.BufferGeometryUtils.computeTangents(modelParts[4].geometry);
+						THREE.BufferGeometryUtils.computeTangents(modelParts[5].geometry);
 
+						initializeModelMaterials();
+						generatePredefinedMaterials();
 
-                       //modelParts[0].material = OpaqueBlackPlastic;
-					   modelParts[1].material = glossyMaterial;//GoldMetal; //OpaqueWhitePlastic;
-					   modelParts[2].material = glossyMaterial;//GoldMetal; //AluminiumMetal;
-					   modelParts[3].material = glossyMaterial;//GoldMetal; //AluminiumMetal;
-					   modelParts[4].material = glossyMaterial;//GoldMetal; //OpaqueWhitePlastic;
-                       modelParts[5].material = glossyMaterial;//GoldMetal; //OpaqueBlackPlastic;
-
-					   modeLoaded = true;
+					    modeLoaded = true;
                        },)
                        ;
-                    
+
                 }
 
 				
-				// carica gli shaders in delle variaibli
+				// search in html and save shaders textContents
                 function loadShaders(){
                     basicVertex = document.getElementById("BasicVertexShader").textContent;
                     basicFragment = document.getElementById("BasicColorFragmentShader").textContent;
-					vertexBRDFLambertianMicrofacet = document.getElementById("vertexBRDF_Lambertian_Microfacet").textContent;
-					fragmentBRDFLambertianMicrofacet = document.getElementById("fragmentBRDF_Lambertian_Microfacet").textContent;
+					vertexLambMicro = document.getElementById("vertexBRDF_Lambertian_Microfacet").textContent;
+					fragmentLambMicro = document.getElementById("fragmentBRDF_Lambertian_Microfacet").textContent;
 					glossyVertex = document.getElementById("GlossyVertex").textContent;
 					glossyFragment = document.getElementById("GlossyFragment").textContent;
 				}
 				
-				// carica e istanzia la cubemap
+				// load and save cubemap texture
 				function LoadCubeMap(){
 					var loader = new THREE.CubeTextureLoader();
 					loader.setPath( 'textures/cubemap/' );
-
-					console.log("loading cubemap");	
 					cubemap = loader.load( [
 					'px.png', 'nx.png',
 					'py.png', 'ny.png',
 					'pz.png', 'nz.png'
 				] );
-
+				console.log("Cubemap (envMap) loaded succesfully!");
 				scene.background = cubemap;
 				cubemap.minFilter = THREE.LinearMipMapLinearFilter;
 				}
 
+				// load normalMaps
 				function LoadNormalMap(){
 					normalMap = loadTexture('textures/normalmap_1.jpg');
 				}
 
+				// load a texture froma given file path
 				function loadTexture(file) {
 					var texture = new THREE.TextureLoader().load( file , function ( texture ) {
-
 					texture.minFilter = THREE.LinearMipMapLinearFilter;
 					texture.anisotropy = renderer.getMaxAnisotropy();
 					texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     			    texture.offset.set( 0, 0 );
 					texture.needsUpdate = true;
-
 					})
 					return texture;
 				}
 				
-				
+				// called once per frame
 				function Update() {	
 					requestAnimationFrame(Update);
 					stats.update();
 					if(controlsActivated){controls.update();}
-					renderer.render(scene, camera);
+					renderer.render(scene, camera);	
 				}
 	
-				function setupScene(){	// SCENE //
+				// basic scene setup
+				function setupScene(){
 					scene = new THREE.Scene();
 					Coordinates.drawAllAxes();
 				}
-	
-				function setupCamera(){	 // CAMERA //
+
+				// basic camera setup
+				function setupCamera(){
 					camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 					camera.position.set(8,5,-6.5);
 					camera.lookAt( new THREE.Vector3(0,0,-3));
-					if(controlsActivated){controls = new THREE.OrbitControls(camera, renderer.domElement);}
+					if(controlsActivated){
+						controls = new THREE.OrbitControls(camera, renderer.domElement);
+						controls.minDistance = 1;
+						controls.maxDistance = 100;
+						controls.enablePan = true;
+					}
 				}
 	
-				function setupRenderer(){	// RENDERER //
+				// renderer initialization
+				function setupRenderer(){
 					renderer = new THREE.WebGLRenderer({antialias:true});
 					renderer.setSize( window.innerWidth, window.innerHeight );
 					renderer.setClearColor(0xf0f0f0);
@@ -581,35 +561,37 @@
 					document.body.appendChild( renderer.domElement);
 					renderer.shadowMap.enabled = true;
 					renderer.shadowMap.type = THREE.BasicShadowMap;
+					renderer.setPixelRatio( window.devicePixelRatio );
 				}
-	
-				function setupStatsOSD(){	// STATISTICS OSD //
+
+				// setup performance OSD
+				function setupStatsOSD(){
 					stats = new Stats();
 					stats.domElement.style.position = 'absolute';
 					stats.domElement.style.top = '0px';
 					document.body.appendChild( stats.domElement );
 				}
 	
-				function setupLightSystem(){	// ADD A BASIC LIGHT SYSTEM TO THE SCENE //
+				// seutp the scene light system
+				function setupLightSystem(){
 					// basic ambient light
 					ambientLight = new THREE.AmbientLight(0xffffff,0.8); 
 					scene.add(ambientLight);
 
-					lights = new Array(numberOfLights);
+					lights = new Array(numberOfLights); // not used yet
 				}
 
-				// GUI per l'interazione di modifica dei materiali delle varie parti
+				// GUI for models modification user interaction. It allows the user to change materials for every model's part
 				function buildNewGUI() {
 					clearGUI();
 					
-					//
-					selezioneParte1 = gui.addFolder('Parte 1');
-					selezioneParte2 = gui.addFolder('Parte 2');
-					selezioneParte3 = gui.addFolder('Parte 3');
-					selezioneParte4 = gui.addFolder('Parte 4');
-					selezioneParte5 = gui.addFolder('Parte 5');
+					selezioneParte1 = gui.addFolder('Parte esterna');
+					selezioneParte2 = gui.addFolder('Pulsanti');
+					selezioneParte3 = gui.addFolder('Parte superiore');
+					selezioneParte4 = gui.addFolder('Elementi ergonomici');
+					selezioneParte5 = gui.addFolder('Parte interna');
 
-					selezioneParte1.add(parametriSelezioneModello.parte1,'materialeSelezionato',[ "Oro", "Alluminio","Plastica lucida", "Plastica opaca" ]).onChange(
+					selezioneParte1.add(parametriSelezioneModello.parte1,'materialeSelezionato',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio",]).onChange(
 					function( value ) {
 						console.log("Hey!, changed material on Part1");
 						updateMaterialType(1);
@@ -626,10 +608,15 @@
 						updateMaterialType(1);	
 					});
 
-					selezioneParte2.add(parametriSelezioneModello.parte2,'materialeSelezionato',[ "Plastica lucida", "Plastica opaca", ]).onChange(
+					selezioneParte2.add(parametriSelezioneModello.parte2,'materialeSelezionato',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio",]).onChange(
 					function( value ) {
 						console.log("Hey!, changed material  on Part2");
 						updateMaterialType(2);
+						if(parametriSelezioneModello.parte2.materialeSelezionato == "Oro" || parametriSelezioneModello.parte2.materialeSelezionato =="Alluminio"){
+							colorPicker2.domElement.hidden = true;		
+						}else{
+							colorPicker2.domElement.hidden = false;
+						}
 					});
 			
 					colorPicker2 = selezioneParte2.addColor(parametriSelezioneModello.parte2,'coloreSelezionato').onChange(
@@ -638,10 +625,15 @@
 						updateMaterialType(2);	
 					});
 
-					selezioneParte3.add(parametriSelezioneModello.parte3,'materialeSelezionato',[ "Plastica lucida", "Plastica opaca", ]).onChange(
+					selezioneParte3.add(parametriSelezioneModello.parte3,'materialeSelezionato',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio",]).onChange(
 					function( value ) {
 						console.log("Hey!, changed material on Part3");
 						updateMaterialType(3);
+						if(parametriSelezioneModello.parte3.materialeSelezionato == "Oro" || parametriSelezioneModello.parte3.materialeSelezionato =="Alluminio"){
+							colorPicker3.domElement.hidden = true;		
+						}else{
+							colorPicker3.domElement.hidden = false;
+						}
 					});
 			
 					colorPicker3 = selezioneParte3.addColor(parametriSelezioneModello.parte3,'coloreSelezionato').onChange(
@@ -650,10 +642,15 @@
 						updateMaterialType(3);	
 					});
 
-					selezioneParte4.add(parametriSelezioneModello.parte4,'materialeSelezionato',[ "Plastica lucida", "Plastica opaca", ]).onChange(
+					selezioneParte4.add(parametriSelezioneModello.parte4,'materialeSelezionato',[ "Tessuto", "Pelle nera", "Pelle scura",]).onChange(
 					function( value ) {
 						console.log("Hey!, changed material on Part4");
 						updateMaterialType(4);
+						if(parametriSelezioneModello.parte4.materialeSelezionato == "Oro" || parametriSelezioneModello.parte4.materialeSelezionato =="Alluminio"){
+							colorPicker4.domElement.hidden = true;		
+						}else{
+							colorPicker4.domElement.hidden = false;
+						}
 					});
 			
 					colorPicker4 = selezioneParte4.addColor(parametriSelezioneModello.parte4,'coloreSelezionato').onChange(
@@ -662,10 +659,15 @@
 						updateMaterialType(4);	
 					});
 
-					selezioneParte5.add(parametriSelezioneModello.parte5,'materialeSelezionato',[ "Plastica lucida", "Plastica opaca", ]).onChange(
+					selezioneParte5.add(parametriSelezioneModello.parte5,'materialeSelezionato',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio",]).onChange(
 					function( value ) {
 						console.log("Hey!, changed material on Part5");
 						updateMaterialType(5);
+						if(parametriSelezioneModello.parte5.materialeSelezionato == "Oro" || parametriSelezioneModello.parte5.materialeSelezionato =="Alluminio"){
+							colorPicker5.domElement.hidden = true;		
+						}else{
+							colorPicker5.domElement.hidden = false;
+						}
 					});
 			
 					colorPicker5 = selezioneParte5.addColor(parametriSelezioneModello.parte5,'coloreSelezionato').onChange(
@@ -680,16 +682,7 @@
 					gui = new dat.GUI();
 					gui.open();
 				}
-	
-				function spawnFloor(larghezza,altezza,profondità,pos_y){
-					var geometry1 = new THREE.CubeGeometry(larghezza,altezza,profondità);
-					var material1 = new THREE.MeshPhongMaterial( { color:"white" } );
-					var floor = new THREE.Mesh( geometry1, material1 );
-					floor.receiveShadow = true;
-					scene.add(floor);
-					floor.position.y = pos_y;
-				}
-				// ___________________________________________________________________________________________________________________________________________________________________________
+				
 				// Main code goes here:
 	
 				Start();

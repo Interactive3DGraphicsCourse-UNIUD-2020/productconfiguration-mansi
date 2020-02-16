@@ -77,7 +77,7 @@ Immagine del primo test di rendering (plastica opaca e lucida):
 
 ---
 ---
-#### Giorno 3: 10/02/2018
+#### Giorno 3: 10/02/2020
 - Aggiunta di una cubemap
 
 ![Cubemap](/textures/cubemap/StandardCubeMap.png)
@@ -93,7 +93,7 @@ Immagine del primo test di rendering (plastica opaca e lucida):
   
 ---
 ---
-#### Giorno 4: 13/02/2018
+#### Giorno 4: 13/02/2020
 
 - Creazione del modello finale
 
@@ -108,7 +108,7 @@ Immagine del primo test di rendering (plastica opaca e lucida):
 
 ---
 ---
-#### Giorno 5: 15/02/2018
+#### Giorno 5: 15/02/2020
 
 - Modifica di alcune parti del modello, cause problemi con tangenti e normali in fase di fragment shading
 - Aggiornamento della GUI e modifiche sparse sul codice
@@ -119,5 +119,20 @@ Immagine del primo test di rendering (plastica opaca e lucida):
 
 ---
 ---
-#### Giorno 6:
+#### Giorno 6: 16/02/2020
+
+- Unito il comportamento dello shader glossy e quello lambertiano:
+  - Il risultato è uno shader che permette di illuminare l'oggetto con la cubemap, di passare una normalMap, inoltre permette di illuminare l'oggetto con ulteriori luci presenti sulla scena.
+  Il risultato è osservabile nell'immagine sottostante.
+    - (a) Shader glossy reflection from cubemap
+    - (b) Riflessi speculari di 3 luci presenti nella scena
+    - (c) La somma dei due risultati
+
+![sum of shaders](images/journal/img10.png)
+
+- Refactoring del codice e miglioramento dei materiali già presenti (ovvero: oro,alluminio,argento, 2 tipologie di plastiche di qualsiasi colore: opaca e lucida).
+
+- Segue una serie di alcuni rendering:
+  
+![renders](images/journal/img11.png)
 

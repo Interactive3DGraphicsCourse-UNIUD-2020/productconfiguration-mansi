@@ -136,3 +136,35 @@ Immagine del primo test di rendering (plastica opaca e lucida):
   
 ![renders](images/journal/img11.png)
 
+---
+---
+#### Giorno 6: 17/02/2020
+
+- Tweaks finali del modello
+- Aggiunta di due cubemaps, l'utente può swhitchare tra una e l'altra a run-time e i materiali vengono aggiornati
+- Aggiunta di un modello schematico di "manichino"
+- Creazione di due materiali possibiliper le componenti ergonomiche (padiglioni + supporto testa) che ovviamente non possono essere in plastica/metalli: tessuto bianco e scuro con relativa normalmap
+- Selezionate normalmap differenti per alluminio/oro/argento
+- tweaks sulle 3 luci della scena per ottimizzare l'illuminazione dell'oggetto oltre alla luce dell'env.
+
+- Segue una serie di alcuni render con le modifiche apportate:
+
+![renders](images/journal/img12.png)
+
+
+---
+---
+#### Giorno x: xx/02/2020
+
+---
+---
+#### Giorno x: xx/02/2020
+
+---
+---
+#### Giorno x: xx/02/2020
+
+---
+---
+#### Giorno x: xx/02/2020
+

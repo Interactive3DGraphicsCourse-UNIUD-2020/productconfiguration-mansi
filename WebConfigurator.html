@@ -1,31 +1,162 @@
-
 <html>
-		<head>
-			<title>--- Web Product Configurator ---</title>
-			<style>
-			body {
-				font-family: Monospace;
-				background-color:#f0f0f0;
-				margin: 0px;
-				overflow: hidden;
-			}
-			canvas {
-				width: 100%;
-				height: 100%;
-			}
-		</style>
-			<script src="libs/three.js"></script>
-			<script src="libs/stats.min.js"></script>
-			<script src="libs/OBJLoader.js"></script>
-			<script src="libs/Coordinates.js"></script>
-            <script src="libs/OrbitControls.js"></script>
-			<script src="libs/GLTFLoader.js"></script>
-			<script src='libs/dat.gui.min.js'></script>
-			<script src='libs/BufferGeometryUtils.js'></script>
+	<head>
+		<title>ACME Headset configurator</title>
+		<style>
+		body {
+			font-family: Monospace;
+			background-color:#f0f0f0;
+			margin: 0px;
+			overflow: hidden;
+		}
+		canvas {
+			width: 100%;
+			height: 100%;
+		}
+
+		.dg.a{
+			float: none !important;
+			position: fixed;
+			top:145px;
+			right:25%;
+		}
+
+		#descrizione{
+			height: 100%;
+			width: 25%;
+			right: 0px;
+			position:absolute;
+			background-color: #f0f0f0;
+		}
+
+		#tutorial{
+			height: 100px;
+			width: 260px;
+			left: 0.7%;
+			bottom: 0.7%;
+			position:absolute;
+			background-color: #f0f0f0;
+		}
+
+		
+
+
+	</style>
+		<script src="libs/three.js"></script>
+		<script src="libs/stats.min.js"></script>
+		<script src="libs/OBJLoader.js"></script>
+		<script src="libs/Coordinates.js"></script>
+		<script src="libs/OrbitControls.js"></script>
+		<script src="libs/GLTFLoader.js"></script>
+		<script src='libs/dat.gui.min.js'></script>
+		<script src='libs/BufferGeometryUtils.js'></script>
+
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+		<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 
 		</head>
-		-------------- Andrea Mansi UNIUD --- Progetto Interactive 3D Graphics --- Web Product Configurator ---
+		<!-- TITLE -->
+		<nav class="navbar navbar-expand-lg navbar-dark bg-light">
+			<div class="container-fluid">
+				<div class="container">
+					<h1 class="display-4">A.C.M.E.</h1>
+					<p class="lead">American Companies Manufacture Everything - since 1920</p>
+			  </div>
+		  </div>
+		</nav>
+		<!-- NavBar -->
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+			<a class="navbar-brand" href="#">A.C.M.E. Headset Configurator</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+			  <span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+			  <div class="navbar-nav">
+				<a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+				<a class="nav-item nav-link" href="#">Products</a>
+				<a class="nav-item nav-link" href="#">What's new</a>
+				<a class="nav-item nav-link" href="#">Business</a>
+				<a class="nav-item nav-link" href="#">Service</a>
+				<a class="nav-item nav-link" href="#">About us</a>		
+			  </div>
+			</div>
+		
+			  <form class="form-inline my-2 my-lg-0">
+				<div class="input-group">
+				  <div class="input-group-prepend">
+					<span class="input-group-text" id="basic-addon1">Search:</span>
+				  </div>
+				  <input type="text" class="form-control" placeholder="Product name" aria-label="Username" aria-describedby="basic-addon1">
+				</div>
+			  </form>
+		  
+			  <div class="navbar-nav">
+				<a class="nav-item nav-link" href="#">LOGIN</a>		
+			  </div>
+		  </nav>
+	  
+		  <!-- Product description-->
+		  <div class="container" id="descrizione">
+			<p><strong><u><h1>Beep Beep Headset</h1></u></strong></p>
+			<p class="text-justify p-2 mb-2 bg-dark text-white shadow-lg rounded">
+				A natural and detailed sound, an effective noise attenuation and the ability to 
+				handle high volume levels should be in the DNA of every headphones made, as well 
+				as a robust construction and excellent wearing comfort.
+
+				The beep beep headphones are our latest model which are the result of our A.C.M.E. engineers's skills.
+			</p>
+
+			<p><h4>Specifications</h4></p>
+			<ul class="list-unstyled  p-2 mb-2 bg-dark text-white shadow-lg rounded">
+				<li><strong>Physical specifications</strong></li>
+				<ul>
+					<li> Length: 138mm</li>
+					<li> Width: 94mm</li>
+					<li> Height: 195mm</li>
+				</ul>
+
+				<li><strong>Sound features</strong></li>
+				<ul> 
+					<li> Noise attenuation</li>
+					<li> Stereo mode for the best music quality</li>
+					<li> Virtual surround 7.1 for the best gaming experience</li>
+				</ul>
+
+				<li><strong>echnical specifications</strong>T</li>
+				<ul> 
+					<li> Driver: A.C.M.E. Pro super boost 50mm</li>
+					<li> Frequency response: 20Hz-20KHz</li>
+					<li> Impedance: 35ohm</li>
+				</ul>
+
+				<li><strong>Connectivity</strong></li>
+				<ul> 
+					<li> Battery life: 15min (not rechargeable)</li>
+					<li> Wireless range: 2 meters</li>
+				</ul>
+			</ul>
 			
+
+
+			<p><h4>Configure the headphones of your dreams</h4></p>
+			<p class="text-justify p-2 mb-2 bg-dark text-white shadow-lg rounded">
+				Our advanced production lines allow us to produce highly customized versions at low price,
+				without any additional cost for the customer. Configure the headphones of your dreams with
+				our new web configurator and proceed with the purchase at the modest price of $ 99.999$
+			</p>
+
+			<button type="button" class="btn btn-outline-success btn-lg btn-block">Purchase</button>
+
+		  </div>
+
+			<p class="text p-1 mb-1 bg-dark text-white shadow-lg rounded"id="Tutorial">
+				<strong>Controls:</strong><br>
+				- mouse-scroll: zoom in/out<br>
+				- hold the left mouse button and move the cursor to rotate the view
+	
+			</p>
+	
 			<script type="text/x-glsl" id="GlossyVertex">
 				precision highp float;
 				precision highp int;
@@ -445,6 +576,7 @@
 				var lights;
 				var numberOfLights = 3;
 
+				// lights for BRDF
 				var PointLightPosition1 = new THREE.Vector3(0,10,7);
 				var PointLightPosition2 = new THREE.Vector3(-19,0,-17);
 				var PointLightPosition3 = new THREE.Vector3(19,0,-17);
@@ -465,13 +597,13 @@
 					parte1: {Materiale: "Oro", Colore: 0x000000,},
 					parte2: {Materiale: "Plastica opaca", Colore: 0x222222,},
 					parte3: {Materiale: "Oro", Colore: 0xff0000,},
-					parte4: {Materiale: "Tessuto chiaro", Colore: 0x222222,},
+					parte4: {Materiale: "Tessuto scuro", Colore: 0x222222,},
 					parte5: {Materiale: "Oro", Colore: 0xff0000,},
 				}
 
 				var parametriSelezioneScena = {
-					Ambiente : "Spiaggia",
-					Mostra_Manichino: true,
+					Ambiente : "Abitazione",
+					Mostra_Manichino: true,	//not used
 				}
 
                 // Shaders //
@@ -483,18 +615,10 @@
 				var normalMaps = new Array(10);
 
 				// pre-defined Materials: 
-					
-				/*	// Opaque plastic
-					var OpaqueWhitePlastic, OpaqueBlackPlastic, OpaqueRedPlastic;
-					// Lucid plastic
-					var LucidWhitePlastic, LucidBlackPlastic, LucidRedPlastic;
-				*/
-
-				// Metals
-				var GoldMetal, AluminiumMetal, SilverMetal, HeadMaterial, TessutoScuro, TessutoChiaro;
+				var GoldMetal, AluminiumMetal, SilverMetal, HeadMaterial, TessutoScuro, TessutoChiaro, CopperMetal;
                 
-                var LucidPlastic_Cspec = {red: 0.04, green: 0.04, blue: 0.04,roughness: 0.275};
-                var OpaquePlastic_Cspec = {red: 0.04, green: 0.04, blue: 0.04,roughness: 0.8};
+                var LucidPlastic_Cspec = {red: 0.05, green: 0.05, blue: 0.05,roughness: 0.3};
+                var OpaquePlastic_Cspec = {red: 0.05, green: 0.05, blue: 0.05,roughness: 0.8};
 
 				//var Gold_Cspec = {red: 1.078, green: 0.782, blue: 0.344, roughness: 0.35}; for brdf
 				//var Aluminium_Cspec = {red: 0.913, green: 0.922, blue: 0.924, roughness: 0.475}; for brdf
@@ -515,7 +639,7 @@
 					setupScene();
 					setupRenderer();
 					setupCamera();
-					setupStatsOSD();
+					//setupStatsOSD();
 					setupLightSystem();
 					buildNewGUI();
 					updateSceneCubemap();
@@ -524,9 +648,7 @@
 					>> Start code goes here:
 					*/
 
-
-					
-					
+		
 				}
 
 				function updateSceneCubemap(){
@@ -534,7 +656,7 @@
 					if(Ambiente == "Spiaggia"){
 						scene.background = cubemaps[2];
 						updateMaterialsCubemap(2);
-					}else if(Ambiente == "Studio"){
+					}else if(Ambiente == "Lago"){
 						scene.background = cubemaps[1];
 						updateMaterialsCubemap(1);
 					}else if(Ambiente == "Shangai notturna"){
@@ -543,6 +665,12 @@
 					}else if(Ambiente == "Abitazione"){
 						scene.background = cubemaps[0];
 						updateMaterialsCubemap(0);
+					}else if(Ambiente == "Cielo stellato"){
+						scene.background = cubemaps[5];
+						updateMaterialsCubemap(5);
+					}else if(Ambiente == "Venezia"){
+						scene.background = cubemaps[4];
+						updateMaterialsCubemap(4);
 					}
 				}
 
@@ -566,6 +694,7 @@
 					AluminiumMetal.uniforms.envMap.value = cubemaps[cubemapIndex];
 					GoldMetal.uniforms.envMap.value = cubemaps[cubemapIndex];
 					SilverMetal.uniforms.envMap.value = cubemaps[cubemapIndex];
+					CopperMetal.uniforms.envMap.value = cubemaps[cubemapIndex];
 					
 				}
 
@@ -601,7 +730,10 @@
 						changePartMaterial(part_to_update,TessutoScuro);
 					}else if(parametri.Materiale == "Tessuto chiaro"){
 						changePartMaterial(part_to_update,TessutoChiaro);
+					}else if(parametri.Materiale == "Rame"){
+						changePartMaterial(part_to_update,CopperMetal);
 					}
+					
 				}
 
 				function selectSelectionParameters(partnumber){
@@ -670,6 +802,9 @@
 					AluminiumUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.913,0.922,0.924),normalMaps[2],cubemap,0.065,0.065,0.5, new THREE.Vector3(0.0,0.0,0.0));
 					AluminiumMetal = createMaterial(AluminiumUniforms,vertexLambGlossy,fragmentLambGlossy);
 					
+					CopperUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.955,0.638,0.538),normalMaps[3],cubemap,0.065,0.065,0.18, new THREE.Vector3(0.0,0.0,0.0));
+					CopperMetal = createMaterial(CopperUniforms,vertexLambGlossy,fragmentLambGlossy);
+
 					HeadUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.075,0.075,0.075),normalMaps[3],cubemap,0.025,0.025,1, new THREE.Vector3(0.9,0.9,0.9));
 					HeadMaterial = createMaterial(HeadUniforms,vertexLambGlossy,fragmentLambGlossy);
 
@@ -732,8 +867,6 @@
 						initializeModelMaterials();
 						updateSceneCubemap();	
 
-						modelParts[4].material = TessutoChiaro;		
-
 					    modeLoaded = true;
                        },)
                        ;
@@ -771,6 +904,8 @@
 					cubemaps[1] = LoadCubeMap( 'textures/cubemap_2/');
 					cubemaps[2] = LoadCubeMap( 'textures/cubemap_3/');
 					cubemaps[3] = LoadCubeMap( 'textures/cubemap_4/');
+					cubemaps[4] = LoadCubeMap( 'textures/cubemap_5/');
+					cubemaps[5] = LoadCubeMap( 'textures/cubemap_6/');
 					console.log("cubemaps loaded succesfully!")
 				}
 
@@ -798,7 +933,7 @@
 				// called once per frame
 				function Update() {	
 					requestAnimationFrame(Update);
-					stats.update();
+					//stats.update();
 					if(controlsActivated){controls.update();}
 					renderer.render(scene, camera);	
 				}
@@ -811,7 +946,7 @@
 
 				// basic camera setup
 				function setupCamera(){
-					camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+					camera = new THREE.PerspectiveCamera( 75, window.innerWidth*0.75 / window.innerHeight, 0.1, 1000 );
 					camera.position.set(6.1,4.5,-9);
 					camera.lookAt( new THREE.Vector3(0,0,0));
 					if(controlsActivated){
@@ -825,7 +960,7 @@
 				// renderer initialization
 				function setupRenderer(){
 					renderer = new THREE.WebGLRenderer({antialias:true});
-					renderer.setSize( window.innerWidth, window.innerHeight );
+					renderer.setSize( window.innerWidth*0.75, window.innerHeight*1 );
 					renderer.setClearColor(0xf0f0f0);
 					renderer.shadowMap.Type = THREE.PCFShadowMap;
 					document.body.appendChild( renderer.domElement);
@@ -858,12 +993,13 @@
 					selezioneParte1 = gui.addFolder('Parte esterna');
 					selezioneParte2 = gui.addFolder('Pulsanti');
 					selezioneParte3 = gui.addFolder('Parte superiore');
-					selezioneParte4 = gui.addFolder('Elementi ergonomici');
 					selezioneParte5 = gui.addFolder('Parte interna');
+					selezioneParte4 = gui.addFolder('Elementi ergonomici');
+					
 
 					selezioneScena = gui.addFolder('Ambiente');
 
-					selezioneScena.add(parametriSelezioneScena, 'Ambiente',["Studio","Spiaggia","Shangai notturna","Abitazione"]).onChange(
+					selezioneScena.add(parametriSelezioneScena, 'Ambiente',["Lago","Spiaggia","Shangai notturna","Abitazione","Venezia","Cielo stellato"]).onChange(
 					function(value){
 						console.log("Hei! Cubemap needs to be updated!!");
 						updateSceneCubemap();
@@ -871,11 +1007,11 @@
 					
 					);
 
-					selezioneParte1.add(parametriSelezioneModello.parte1,'Materiale',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio",]).onChange(
+					selezioneParte1.add(parametriSelezioneModello.parte1,'Materiale',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio","Rame"]).onChange(
 					function( value ) {
 						console.log("Hey!, changed material on Part1");
 						updateMaterialType(1);
-						if(parametriSelezioneModello.parte1.Materiale == "Oro" || parametriSelezioneModello.parte1.Materiale =="Alluminio" || parametriSelezioneModello.parte1.Materiale =="Argento"){
+						if(parametriSelezioneModello.parte1.Materiale == "Oro" || parametriSelezioneModello.parte1.Materiale =="Alluminio" || parametriSelezioneModello.parte1.Materiale =="Argento" || parametriSelezioneModello.parte1.Materiale =="Rame"){
 							colorPicker1.domElement.hidden = true;		
 						}else{
 							colorPicker1.domElement.hidden = false;
@@ -888,11 +1024,11 @@
 						updateMaterialType(1);	
 					});
 
-					selezioneParte2.add(parametriSelezioneModello.parte2,'Materiale',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio",]).onChange(
+					selezioneParte2.add(parametriSelezioneModello.parte2,'Materiale',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio","Rame"]).onChange(
 					function( value ) {
 						console.log("Hey!, changed material  on Part2");
 						updateMaterialType(2);
-						if(parametriSelezioneModello.parte2.Materiale == "Oro" || parametriSelezioneModello.parte2.Materiale =="Alluminio" || parametriSelezioneModello.parte2.Materiale =="Argento"){
+						if(parametriSelezioneModello.parte2.Materiale == "Oro" || parametriSelezioneModello.parte2.Materiale =="Alluminio" || parametriSelezioneModello.parte2.Materiale =="Argento"  || parametriSelezioneModello.parte2.Materiale =="Rame"){
 							colorPicker2.domElement.hidden = true;		
 						}else{
 							colorPicker2.domElement.hidden = false;
@@ -905,11 +1041,11 @@
 						updateMaterialType(2);	
 					});
 
-					selezioneParte3.add(parametriSelezioneModello.parte3,'Materiale',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio",]).onChange(
+					selezioneParte3.add(parametriSelezioneModello.parte3,'Materiale',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio","Rame"]).onChange(
 					function( value ) {
 						console.log("Hey!, changed material on Part3");
 						updateMaterialType(3);
-						if(parametriSelezioneModello.parte3.Materiale == "Oro" || parametriSelezioneModello.parte3.Materiale =="Alluminio" || parametriSelezioneModello.parte3.Materiale =="Argento"){
+						if(parametriSelezioneModello.parte3.Materiale == "Oro" || parametriSelezioneModello.parte3.Materiale =="Alluminio" || parametriSelezioneModello.parte3.Materiale =="Argento"  || parametriSelezioneModello.parte3.Materiale =="Rame"){
 							colorPicker3.domElement.hidden = true;		
 						}else{
 							colorPicker3.domElement.hidden = false;
@@ -928,11 +1064,11 @@
 						updateMaterialType(4);
 					});
 
-					selezioneParte5.add(parametriSelezioneModello.parte5,'Materiale',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio",]).onChange(
+					selezioneParte5.add(parametriSelezioneModello.parte5,'Materiale',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio","Rame"]).onChange(
 					function( value ) {
 						console.log("Hey!, changed material on Part5");
 						updateMaterialType(5);
-						if(parametriSelezioneModello.parte5.Materiale == "Oro" || parametriSelezioneModello.parte5.Materiale =="Alluminio" || parametriSelezioneModello.parte5.Materiale =="Argento"){
+						if(parametriSelezioneModello.parte5.Materiale == "Oro" || parametriSelezioneModello.parte5.Materiale =="Alluminio" || parametriSelezioneModello.parte5.Materiale =="Argento" || parametriSelezioneModello.parte5.Materiale =="Rame"){
 							colorPicker5.domElement.hidden = true;		
 						}else{
 							colorPicker5.domElement.hidden = false;
@@ -947,30 +1083,29 @@
 
 
 					// HIDE COLOR SELECTORS IF STARTING MATERIAL CAN'T CHANGE COLOR
-					if(parametriSelezioneModello.parte1.Materiale == "Oro" || parametriSelezioneModello.parte1.Materiale =="Alluminio" || parametriSelezioneModello.parte1.Materiale =="Argento"){
+					if(parametriSelezioneModello.parte1.Materiale == "Oro" || parametriSelezioneModello.parte1.Materiale =="Alluminio" || parametriSelezioneModello.parte1.Materiale =="Argento" || parametriSelezioneModello.parte1.Materiale =="Rame"){
 							colorPicker1.domElement.hidden = true;		
 						}else{
 							colorPicker1.domElement.hidden = false;
 					}
 	
-					if(parametriSelezioneModello.parte3.Materiale == "Oro" || parametriSelezioneModello.parte2.Materiale =="Alluminio" || parametriSelezioneModello.parte2.Materiale =="Argento"){
+					if(parametriSelezioneModello.parte2.Materiale == "Oro" || parametriSelezioneModello.parte2.Materiale =="Alluminio" || parametriSelezioneModello.parte2.Materiale =="Argento" || parametriSelezioneModello.parte2.Materiale =="Rame"){
 							colorPicker2.domElement.hidden = true;		
 						}else{
 							colorPicker2.domElement.hidden = false;
 					}
 		
-					if(parametriSelezioneModello.parte3.Materiale == "Oro" || parametriSelezioneModello.parte3.Materiale =="Alluminio" || parametriSelezioneModello.parte3.Materiale =="Argento"){
+					if(parametriSelezioneModello.parte3.Materiale == "Oro" || parametriSelezioneModello.parte3.Materiale =="Alluminio" || parametriSelezioneModello.parte3.Materiale =="Argento" || parametriSelezioneModello.parte3.Materiale =="Rame"){
 							colorPicker3.domElement.hidden = true;		
 						}else{
 							colorPicker3.domElement.hidden = false;
 					}
 
-					if(parametriSelezioneModello.parte5.Materiale == "Oro" || parametriSelezioneModello.parte5.Materiale =="Alluminio" || parametriSelezioneModello.parte5.Materiale =="Argento"){
+					if(parametriSelezioneModello.parte5.Materiale == "Oro" || parametriSelezioneModello.parte5.Materiale =="Alluminio" || parametriSelezioneModello.parte5.Materiale =="Argento" || parametriSelezioneModello.parte5.Materiale =="Rame"){
 							colorPicker5.domElement.hidden = true;		
 						}else{
 							colorPicker5.domElement.hidden = false;
 					}
-					
 				
 				}
 
@@ -984,6 +1119,7 @@
 	
 				Start();
 				Update();
+				
 				
 			</script>
 		</body>

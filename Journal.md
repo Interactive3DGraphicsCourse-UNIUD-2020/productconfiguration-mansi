@@ -28,13 +28,14 @@ ROADMAP [ver 1]
 | n° | Task | Priorità|
 | :---:        |    :----:   | :---: |
 | 1 |Modellazione di un prodotto composto da più parti da usare come test per le fasi successive.| Principale |
-| 2 |Implementazione di un sistema che permetta di cambiare agevolmente il materiale di una |Principale |determinata parte del prodotto.|Principale |
+| 2 |Implementazione di un sistema che permetta di cambiare agevolmente il materiale di una determinata parte del prodotto. |Principale |
 | 3 |Implementazione di una GUI che permetta di interagire con il codice a run-time.|Principale |
 | 4 |Ideazione del sistema di illuminazione|Principale |
 | 5 |Ideazione di vari materiali per configurare il prodotto |Principale |
 | 6 |Modellazione del prodotto finale |Principale |
-| 7 |Creazione del sistema finale: luci, prodotto, GUI etc. |Principale |
-| 8 |Sistema per il controllo delle luci | Opzionale |
+| 7 |Integrazione del sistema finale: luci, prodotto, GUI etc. |Principale |
+| 8 |Creazione di un sito web e-commerce|Principale|
+| 9 |Sistema per il controllo delle luci | Opzionale |
 
 ### Lavoro svolto:
 
@@ -78,6 +79,8 @@ Immagine del primo test di rendering (plastica opaca e lucida):
 ---
 ---
 #### Giorno 3: 10/02/2020
+
+### Lavoro svolto:
 - Aggiunta di una cubemap
 
 ![Cubemap](/textures/cubemap/StandardCubeMap.png)
@@ -95,6 +98,7 @@ Immagine del primo test di rendering (plastica opaca e lucida):
 ---
 #### Giorno 4: 13/02/2020
 
+### Lavoro svolto:
 - Creazione del modello finale
 
 ![Modello Finale](images/journal/img8.png)
@@ -110,6 +114,7 @@ Immagine del primo test di rendering (plastica opaca e lucida):
 ---
 #### Giorno 5: 15/02/2020
 
+### Lavoro svolto:
 - Modifica di alcune parti del modello, cause problemi con tangenti e normali in fase di fragment shading
 - Aggiornamento della GUI e modifiche sparse sul codice
 - Aggiunta del materiale Alluminio e Argento
@@ -121,6 +126,7 @@ Immagine del primo test di rendering (plastica opaca e lucida):
 ---
 #### Giorno 6: 16/02/2020
 
+### Lavoro svolto:
 - Unito il comportamento dello shader glossy e quello lambertiano:
   - Il risultato è uno shader che permette di illuminare l'oggetto con la cubemap, di passare una normalMap, inoltre permette di illuminare l'oggetto con ulteriori luci presenti sulla scena.
   Il risultato è osservabile nell'immagine sottostante.
@@ -138,12 +144,13 @@ Immagine del primo test di rendering (plastica opaca e lucida):
 
 ---
 ---
-#### Giorno 6: 17/02/2020
+#### Giorno 7: 17/02/2020
 
+### Lavoro svolto:
 - Tweaks finali del modello
 - Aggiunta di due cubemaps, l'utente può swhitchare tra una e l'altra a run-time e i materiali vengono aggiornati
 - Aggiunta di un modello schematico di "manichino"
-- Creazione di due materiali possibiliper le componenti ergonomiche (padiglioni + supporto testa) che ovviamente non possono essere in plastica/metalli: tessuto bianco e scuro con relativa normalmap
+- Creazione di due materiali possibili per le componenti ergonomiche (padiglioni + supporto testa) che ovviamente non possono essere in plastica/metalli: tessuto bianco e scuro con relativa normalmap
 - Selezionate normalmap differenti per alluminio/oro/argento
 - tweaks sulle 3 luci della scena per ottimizzare l'illuminazione dell'oggetto oltre alla luce dell'env.
 
@@ -154,17 +161,37 @@ Immagine del primo test di rendering (plastica opaca e lucida):
 
 ---
 ---
-#### Giorno x: xx/02/2020
+#### Giorno 8: 19/02/2020
+
+### Lavoro svolto:
+- Prima versione del sito web implementata tramite bootstrap
+  - Ho personalmente preso ispirazione dai siti di: Asus, Sennheiser e Logitech
+- Tweaks al codice
+
+![website](images/journal/img13.png)
+
+- L'attuale versione del progetto dovrebbe rispettare tutte le specifiche richieste, di conseguenza i giorni rimanenti verranno utilizzati per:
+  - Migliorare il sito
+  - Migliorare modello e materiali
+  - 
+
+Final tweaks ROADMAP [ver 2]
+| n° | Task |
+| :---:        |    :----:   |
+| 1 | Cambiare la risoluzione delle cubemap (4K è eccessivo)|
+| 2 | Aggiungere qualche cubemap|
+| 3 | Aggiungere qualche materiale|
+| 4 | Migliorare il sito|
 
 ---
 ---
-#### Giorno x: xx/02/2020
+#### Giorno 9: xx/02/2020
 
 ---
 ---
-#### Giorno x: xx/02/2020
+#### Giorno 10: xx/02/2020
 
 ---
 ---
-#### Giorno x: xx/02/2020
+#### Giorno 11: xx/02/2020
 

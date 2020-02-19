@@ -182,6 +182,7 @@ Final tweaks ROADMAP [ver 2]
 | 2 | Aggiungere qualche cubemap|
 | 3 | Aggiungere qualche materiale|
 | 4 | Migliorare il sito|
+| 5 | Migliorare la GUI (esteticamente)|
 
 ---
 ---

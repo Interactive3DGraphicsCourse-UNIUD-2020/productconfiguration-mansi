@@ -16,8 +16,32 @@
 		.dg.a{
 			float: none !important;
 			position: fixed;
-			top:145px;
-			right:25%;
+			top:155px;
+			right:24.25%;
+			font:"";
+		}
+
+		.dg{
+			font-size: 16px !important;
+			width: 260px !important;
+		}
+
+		.title{
+			background:#343a40 !important;
+			font-size: 18px !important;	
+		}
+
+		.cr{
+			height: 32px !important;	
+		}
+
+		.display-4{
+			font-size: 4rem !important;
+			font-weight: 700 !important;
+		}
+
+		.lead{
+			font-size: 1.6rem !important;
 		}
 
 		#descrizione{
@@ -36,8 +60,6 @@
 			position:absolute;
 			background-color: #f0f0f0;
 		}
-
-		
 
 
 	</style>
@@ -146,7 +168,7 @@
 				our new web configurator and proceed with the purchase at the modest price of $ 99.999$
 			</p>
 
-			<button type="button" class="btn btn-outline-success btn-lg btn-block">Purchase</button>
+			<button type="button" class="btn btn-success btn-lg btn-block">Purchase</button>
 
 		  </div>
 
@@ -403,15 +425,21 @@
 					vec3 fresnel1 = FSchlick(lDoth[0]);
 					vec3 fresnel2 = FSchlick(lDoth[1]);
 					vec3 fresnel3 = FSchlick(lDoth[2]);
-					
-					vec3 BRDF1 = (vec3(1.0)-fresnel1)*cdiff/PI + fresnel1*GSmith(nDotv[0],nDotl[0])*DGGX(nDoth[0],roughness*roughness)/
+
+					vec3 outRadianceToRemove = envLight*BRDF_Specular_GGX_Environment(n, v, cspec, roughness);
+
+					// 1-all_specular_light * cdiff
+					vec3 BRDF1 = (vec3(1.0)-fresnel1-outRadianceToRemove)*cdiff/PI + fresnel1*GSmith(nDotv[0],nDotl[0])*DGGX(nDoth[0],roughness*roughness)/
 						(4.0*nDotl[0]*nDotv[0]);
-					vec3 BRDF2 = (vec3(1.0)-fresnel2)*cdiff/PI + fresnel2*GSmith(nDotv[1],nDotl[1])*DGGX(nDoth[1],roughness*roughness)/
+					vec3 BRDF2 = (vec3(1.0)-fresnel2-outRadianceToRemove)*cdiff/PI + fresnel2*GSmith(nDotv[1],nDotl[1])*DGGX(nDoth[1],roughness*roughness)/
 						(4.0*nDotl[1]*nDotv[1]);
-					vec3 BRDF3 = (vec3(1.0)-fresnel3)*cdiff/PI + fresnel3*GSmith(nDotv[2],nDotl[2])*DGGX(nDoth[2],roughness*roughness)/
+					vec3 BRDF3 = (vec3(1.0)-fresnel3-outRadianceToRemove)*cdiff/PI + fresnel3*GSmith(nDotv[2],nDotl[2])*DGGX(nDoth[2],roughness*roughness)/
 						(4.0*nDotl[2]*nDotv[2]);
 
+					// only cubemap light
 					//vec3 outRadiance = envLight*BRDF_Specular_GGX_Environment(n, v, cspec, roughness);
+					
+					// only lamb+micro light
 					//vec3 outRadiance = (PI* (clight1 * nDotl[0]) * BRDF1) + (PI* (clight2 * nDotl[1]) * BRDF2)+ (PI* (clight3 * nDotl[2]) * BRDF3);
 					
 					vec3 outRadiance = envLight*BRDF_Specular_GGX_Environment(n, v, cspec, roughness) + (PI* (clight1 * nDotl[0]) * BRDF1) + (PI* (clight2 * nDotl[1]) * BRDF2)+ (PI* (clight3 * nDotl[2]) * BRDF3);
@@ -570,6 +598,8 @@
 				var controlsActivated = true;
 				var gui;
 				var cubemaps = new Array(4);
+				var sample = new Array(10);
+				var test = false; // if true hide model and show cubic samples for materials
 
 				// Light System Variables
 				var ambientLight;   //scene ambient light object
@@ -581,11 +611,11 @@
 				var PointLightPosition2 = new THREE.Vector3(-19,0,-17);
 				var PointLightPosition3 = new THREE.Vector3(19,0,-17);
 
-				var lightParameters = {
+				var LightParameters = {
 					red: 1.0,
 					green: 1.0,
 					blue: 1.0,
-					intensity: 1,};
+					intensity: 0.85,};
 				
 				// Model Variables
 				var modelPath = "/models/finalModel3.glb";
@@ -593,19 +623,19 @@
                 var numberOfParts = 5;
                 var modeLoaded = false;
 
-				var parametriSelezioneModello = {	// values on code indicates starting properties of materials
-					parte1: {Materiale: "Oro", Colore: 0x000000,},
-					parte2: {Materiale: "Plastica opaca", Colore: 0x222222,},
-					parte3: {Materiale: "Oro", Colore: 0xff0000,},
-					parte4: {Materiale: "Tessuto scuro", Colore: 0x222222,},
-					parte5: {Materiale: "Oro", Colore: 0xff0000,},
+				var ParametriSelezioneModello = {	// values on code indicates starting properties of materials
+					parte1: {Material: "Gold", Color: 0x000000,},
+					parte2: {Material: "Opaque plastic", Color: 0x222222,},
+					parte3: {Material: "Gold", Color: 0xff0000,},
+					parte4: {Material: "Dark fabric", Color: 0x222222,},
+					parte5: {Material: "Gold", Color: 0xff0000,},
 				}
 
-				var parametriSelezioneScena = {
-					Ambiente : "Abitazione",
+				var ParametriSelezioneScena = {
+					Location : "House indoor",
 					Mostra_Manichino: true,	//not used
 				}
-
+				
                 // Shaders //
                 var basicVertex; var basicFragment;				// basic fragment shader
 				var glossyVertex; var glossyFragment;			// glossy reflection from cubemap shader
@@ -615,10 +645,9 @@
 				var normalMaps = new Array(10);
 
 				// pre-defined Materials: 
-				var GoldMetal, AluminiumMetal, SilverMetal, HeadMaterial, TessutoScuro, TessutoChiaro, CopperMetal;
+				var GoldMetal, AluminiumMetal, SilverMetal, HeadMaterial, TessutoScuro, TessutoChiaro, CopperMetal, PelleScura, PelleChiara;
                 
-                var LucidPlastic_Cspec = {red: 0.05, green: 0.05, blue: 0.05,roughness: 0.3};
-                var OpaquePlastic_Cspec = {red: 0.05, green: 0.05, blue: 0.05,roughness: 0.8};
+                var Plastic_Cspec = {red: 0.04, green: 0.04, blue: 0.04};
 
 				//var Gold_Cspec = {red: 1.078, green: 0.782, blue: 0.344, roughness: 0.35}; for brdf
 				//var Aluminium_Cspec = {red: 0.913, green: 0.922, blue: 0.924, roughness: 0.475}; for brdf
@@ -643,6 +672,7 @@
 					setupLightSystem();
 					buildNewGUI();
 					updateSceneCubemap();
+					
 
 					/* ___________________________________________________________________________________________________________________________________________________________________________
 					>> Start code goes here:
@@ -652,23 +682,23 @@
 				}
 
 				function updateSceneCubemap(){
-					Ambiente = parametriSelezioneScena.Ambiente;
-					if(Ambiente == "Spiaggia"){
+					Location = ParametriSelezioneScena.Location;
+					if(Location == "Beach"){
 						scene.background = cubemaps[2];
 						updateMaterialsCubemap(2);
-					}else if(Ambiente == "Lago"){
+					}else if(Location == "Mountain lake"){
 						scene.background = cubemaps[1];
 						updateMaterialsCubemap(1);
-					}else if(Ambiente == "Shangai notturna"){
+					}else if(Location == "Shangai by night"){
 						scene.background = cubemaps[3];
 						updateMaterialsCubemap(3);
-					}else if(Ambiente == "Abitazione"){
+					}else if(Location == "House indoor"){
 						scene.background = cubemaps[0];
 						updateMaterialsCubemap(0);
-					}else if(Ambiente == "Cielo stellato"){
+					}else if(Location == "Night sky"){
 						scene.background = cubemaps[5];
 						updateMaterialsCubemap(5);
-					}else if(Ambiente == "Venezia"){
+					}else if(Location == "Venezia"){
 						scene.background = cubemaps[4];
 						updateMaterialsCubemap(4);
 					}
@@ -695,7 +725,14 @@
 					GoldMetal.uniforms.envMap.value = cubemaps[cubemapIndex];
 					SilverMetal.uniforms.envMap.value = cubemaps[cubemapIndex];
 					CopperMetal.uniforms.envMap.value = cubemaps[cubemapIndex];
-					
+
+					if(sample[1]){
+					sample[8].material.uniforms.envMap.value = cubemaps[cubemapIndex];
+					sample[7].material.uniforms.envMap.value = cubemaps[cubemapIndex];
+					sample[6].material.uniforms.envMap.value = cubemaps[cubemapIndex];
+					sample[5].material.uniforms.envMap.value = cubemaps[cubemapIndex];
+					}
+	
 				}
 
 				function initializeModelMaterials(){
@@ -709,39 +746,43 @@
 				function updateMaterialType(partnumber){
 
 				var part_to_update = modelParts[partnumber];
-				var parametri = selectSelectionParameters(partnumber);
-				new_color = new THREE.Color(parametri.Colore);
+				var Parametri = selectSelectionPaCopperters(partnumber);
+				new_color = new THREE.Color(Parametri.Color);
 
-					if(parametri.Materiale == "Plastica opaca"){		
-						new_uniforms = generateGlossyLambertUniforms(new THREE.Vector3(new_color.r,new_color.g,new_color.b),normalMaps[0],cubemap,0.0075,0.0075,1, new THREE.Vector3(0.0,0.0,0.0));
+					if(Parametri.Material == "Opaque plastic"){		
+						new_uniforms = generateGlossyLambertUniforms(Plastic_Cspec,normalMaps[0],cubemap,1,1,0.9,new THREE.Vector3(new_color.r,new_color.g,new_color.b));
 						new_material = createMaterial(new_uniforms,vertexLambGlossy,fragmentLambGlossy);
 						changePartMaterial(part_to_update,new_material);
-					}else if(parametri.Materiale == "Plastica lucida"){
-						new_uniforms = generateGlossyLambertUniforms(new THREE.Vector3(new_color.r,new_color.g,new_color.b),normalMaps,cubemap,0.0075,0.0075,0.55, new THREE.Vector3(0.0,0.0,0.0));
+					}else if(Parametri.Material == "Lucid plastic"){
+						new_uniforms = generateGlossyLambertUniforms(Plastic_Cspec,normalMaps[5],cubemap,0.25,0.25,0.4,new THREE.Vector3(new_color.r,new_color.g,new_color.b));
 						new_material = createMaterial(new_uniforms,vertexLambGlossy,fragmentLambGlossy);
 						changePartMaterial(part_to_update,new_material);
-					}else if(parametri.Materiale == "Oro"){
+					}else if(Parametri.Material == "Gold"){
 						changePartMaterial(part_to_update,GoldMetal);
-					}else if(parametri.Materiale == "Alluminio"){
+					}else if(Parametri.Material == "Aluminium"){
 						changePartMaterial(part_to_update,AluminiumMetal);
-					}else if(parametri.Materiale == "Argento"){
+					}else if(Parametri.Material == "Silver"){
 						changePartMaterial(part_to_update,SilverMetal);
-					}else if(parametri.Materiale == "Tessuto scuro"){
+					}else if(Parametri.Material == "Dark fabric"){
 						changePartMaterial(part_to_update,TessutoScuro);
-					}else if(parametri.Materiale == "Tessuto chiaro"){
+					}else if(Parametri.Material == "Light fabric"){
 						changePartMaterial(part_to_update,TessutoChiaro);
-					}else if(parametri.Materiale == "Rame"){
+					}else if(Parametri.Material == "Copper"){
 						changePartMaterial(part_to_update,CopperMetal);
+					}else if(Parametri.Material == "Dark leather"){
+						changePartMaterial(part_to_update,PelleScura);
+					}else if(Parametri.Material == "Light leather"){
+						changePartMaterial(part_to_update,PelleChiara);
 					}
 					
 				}
 
-				function selectSelectionParameters(partnumber){
-					if(partnumber == 1){return parametriSelezioneModello.parte1};
-					if(partnumber == 2){return parametriSelezioneModello.parte2};
-					if(partnumber == 3){return parametriSelezioneModello.parte3};
-					if(partnumber == 4){return parametriSelezioneModello.parte4};
-					if(partnumber == 5){return parametriSelezioneModello.parte5};
+				function selectSelectionPaCopperters(partnumber){
+					if(partnumber == 1){return ParametriSelezioneModello.parte1};
+					if(partnumber == 2){return ParametriSelezioneModello.parte2};
+					if(partnumber == 3){return ParametriSelezioneModello.parte3};
+					if(partnumber == 4){return ParametriSelezioneModello.parte4};
+					if(partnumber == 5){return ParametriSelezioneModello.parte5};
 				}
 
 				function generateLambertianUniforms(cspec,roughness,cdiff){
@@ -750,11 +791,11 @@
 						cdiff:{ type: "v3", value: new THREE.Vector3(cdiff.x,cdiff.y,cdiff.z) },
 						roughness: {type: "f", value: roughness},
 						pointLightPosition1:{ type: "v3", value: PointLightPosition1 },
-						clight1:{ type: "v3", value: new THREE.Vector3(lightParameters.red * lightParameters.intensity,lightParameters.green * lightParameters.intensity,lightParameters.blue * lightParameters.intensity) },
+						clight1:{ type: "v3", value: new THREE.Vector3(LightParameters.red * LightParameters.intensity,LightParameters.green * LightParameters.intensity,LightParameters.blue * LightParameters.intensity) },
 						pointLightPosition2:{ type: "v3", value: PointLightPosition2 },
-						clight2:{ type: "v3", value: new THREE.Vector3(lightParameters.red * lightParameters.intensity,lightParameters.green * lightParameters.intensity,lightParameters.blue * lightParameters.intensity) },
+						clight2:{ type: "v3", value: new THREE.Vector3(LightParameters.red * LightParameters.intensity,LightParameters.green * LightParameters.intensity,LightParameters.blue * LightParameters.intensity) },
 						pointLightPosition3:{ type: "v3", value: PointLightPosition3 },
-						clight3:{ type: "v3", value: new THREE.Vector3(lightParameters.red * lightParameters.intensity,lightParameters.green * lightParameters.intensity,lightParameters.blue * lightParameters.intensity) },						
+						clight3:{ type: "v3", value: new THREE.Vector3(LightParameters.red * LightParameters.intensity,LightParameters.green * LightParameters.intensity,LightParameters.blue * LightParameters.intensity) },						
 					};
                     return lambertianUniforms;
 				}
@@ -777,11 +818,11 @@
 						cdiff:{ type: "v3", value: new THREE.Vector3(cdiff.x,cdiff.y,cdiff.z) },
 						roughness: {type: "f", value: roughness},
 						pointLightPosition1:{ type: "v3", value: PointLightPosition1 },
-						clight1:{ type: "v3", value: new THREE.Vector3(lightParameters.red * lightParameters.intensity,lightParameters.green * lightParameters.intensity,lightParameters.blue * lightParameters.intensity) },
+						clight1:{ type: "v3", value: new THREE.Vector3(LightParameters.red * LightParameters.intensity,LightParameters.green * LightParameters.intensity,LightParameters.blue * LightParameters.intensity) },
 						pointLightPosition2:{ type: "v3", value: PointLightPosition2 },
-						clight2:{ type: "v3", value: new THREE.Vector3(lightParameters.red * lightParameters.intensity,lightParameters.green * lightParameters.intensity,lightParameters.blue * lightParameters.intensity) },
+						clight2:{ type: "v3", value: new THREE.Vector3(LightParameters.red * LightParameters.intensity,LightParameters.green * LightParameters.intensity,LightParameters.blue * LightParameters.intensity) },
 						pointLightPosition3:{ type: "v3", value: PointLightPosition3 },
-						clight3:{ type: "v3", value: new THREE.Vector3(lightParameters.red * lightParameters.intensity,lightParameters.green * lightParameters.intensity,lightParameters.blue * lightParameters.intensity) },
+						clight3:{ type: "v3", value: new THREE.Vector3(LightParameters.red * LightParameters.intensity,LightParameters.green * LightParameters.intensity,LightParameters.blue * LightParameters.intensity) },
 						normalMap:	{ type: "t", value: normalMap},
 						normalScale: {type: "v2", value: new THREE.Vector2(XnormScale,YnormScale)},
 						envMap:	{ type: "t", value: envMap},
@@ -793,39 +834,45 @@
 				
 				function generatePredefinedMaterials(){
 
-					GoldUniforms = generateGlossyLambertUniforms(new THREE.Vector3(1.078,0.782,0.344),normalMaps[0],cubemap,0.065,0.065,0.18, new THREE.Vector3(0.0,0.0,0.0));
+					GoldUniforms = generateGlossyLambertUniforms(new THREE.Vector3(1.078,0.782,0.344),normalMaps[0],cubemap,0.085,0.085,0.18, new THREE.Vector3(0.0,0.0,0.0));
 					GoldMetal = createMaterial(GoldUniforms,vertexLambGlossy,fragmentLambGlossy);
 					
-					SilverUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.992,0.980,0.935),normalMaps[3],cubemap,0.065,0.065,0.18, new THREE.Vector3(0.0,0.0,0.0));
+					SilverUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.992,0.980,0.935),normalMaps[3],cubemap,0.055,0.055,0.18, new THREE.Vector3(0.0,0.0,0.0));
 					SilverMetal = createMaterial(SilverUniforms,vertexLambGlossy,fragmentLambGlossy);
 
-					AluminiumUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.913,0.922,0.924),normalMaps[2],cubemap,0.065,0.065,0.5, new THREE.Vector3(0.0,0.0,0.0));
+					AluminiumUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.913,0.922,0.924),normalMaps[2],cubemap,0.2,0.2,0.5, new THREE.Vector3(0.0,0.0,0.0));
 					AluminiumMetal = createMaterial(AluminiumUniforms,vertexLambGlossy,fragmentLambGlossy);
 					
 					CopperUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.955,0.638,0.538),normalMaps[3],cubemap,0.065,0.065,0.18, new THREE.Vector3(0.0,0.0,0.0));
 					CopperMetal = createMaterial(CopperUniforms,vertexLambGlossy,fragmentLambGlossy);
 
-					HeadUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.075,0.075,0.075),normalMaps[3],cubemap,0.025,0.025,1, new THREE.Vector3(0.9,0.9,0.9));
+					HeadUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.1,0.1,0.1),normalMaps[3],cubemap,0.5,0.5,1, new THREE.Vector3(0.93,0.93,0.93));
 					HeadMaterial = createMaterial(HeadUniforms,vertexLambGlossy,fragmentLambGlossy);
 
-					TessutoScuroUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.09,0.09,0.09),normalMaps[1],cubemap,3,3,0.8, new THREE.Vector3(0.085,0.085,0.085));
+					TessutoScuroUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.09,0.09,0.09),normalMaps[1],cubemap,8,8,0.8, new THREE.Vector3(0.085,0.085,0.085));
 					TessutoScuro = createMaterial(TessutoScuroUniforms,vertexLambGlossy,fragmentLambGlossy);
 
-					TessutoChiaroUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.09,0.09,0.09),normalMaps[1],cubemap,3,3,0.8, new THREE.Vector3(0.585,0.585,0.585));
+					TessutoChiaroUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.09,0.09,0.09),normalMaps[1],cubemap,8,8,0.8, new THREE.Vector3(0.585,0.585,0.585));
 					TessutoChiaro = createMaterial(TessutoChiaroUniforms,vertexLambGlossy,fragmentLambGlossy);
+
+					PelleScuraUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.04,0.04,0.04),normalMaps[5],cubemap,10,10,0.6, new THREE.Vector3(0.085,0.085,0.085));
+					PelleScura = createMaterial(PelleScuraUniforms,vertexLambGlossy,fragmentLambGlossy);
+
+					PelleChiaraUniforms = generateGlossyLambertUniforms(new THREE.Vector3(0.075,0.075,0.075),normalMaps[5],cubemap,10,10,0.6, new THREE.Vector3(0.485,0.485,0.485));
+					PelleChiara = createMaterial(PelleChiaraUniforms,vertexLambGlossy,fragmentLambGlossy);
 
 				console.log("predefined materials generated!");
 				}
 				
                 function createMaterial(uniforms,vertexShader,fragmentShader){
-					materialExtensions = {
+					Materialxtensions = {
 						shaderTextureLOD: true // set to use shader texture LOD
 					};
                     newMaterial = new THREE.ShaderMaterial({
                         uniforms: uniforms,
                         vertexShader: vertexShader,
                         fragmentShader: fragmentShader,
-						extensions: materialExtensions });
+						extensions: Materialxtensions });
                     return newMaterial;
                 }
 
@@ -846,7 +893,8 @@
                     	modelParts[5] = gltf.scene.children[5];
 
 						head = gltf.scene.children[6];
-
+						
+						if(!test){
 						// adding parts
 						scene.add(modelParts[1]);
 						scene.add(modelParts[2]);
@@ -854,8 +902,12 @@
 						scene.add(modelParts[4]);
 						scene.add(modelParts[5]);
 
+
 						scene.add(head);
 						head.material = HeadMaterial;
+						}
+
+						
 
 						// computing tangents for every single part
 						THREE.BufferGeometryUtils.computeTangents(modelParts[1].geometry);
@@ -868,6 +920,58 @@
 						updateSceneCubemap();	
 
 					    modeLoaded = true;
+
+						if(test){
+
+						//TEST MATERIALS SAMPLES
+						var cube = new THREE.BoxBufferGeometry(4,4,4,1,1,1);
+						THREE.BufferGeometryUtils.computeTangents(cube);
+
+						new_uniforms1A = generateGlossyLambertUniforms(Plastic_Cspec,normalMaps[0],cubemap,1,1,0.9,new THREE.Vector3(0.9,0.2,0.2));
+						new_uniforms1B = generateGlossyLambertUniforms(Plastic_Cspec,normalMaps[0],cubemap,1,1,0.9,new THREE.Vector3(0.6,0.6,0.2));
+						new_material1A = createMaterial(new_uniforms1A,vertexLambGlossy,fragmentLambGlossy);
+						new_material1B = createMaterial(new_uniforms1B,vertexLambGlossy,fragmentLambGlossy);
+
+						new_uniforms2A = generateGlossyLambertUniforms(Plastic_Cspec,normalMaps[5],cubemap,0.25,0.25,0.4,new THREE.Vector3(0.2,0.8,0.2));
+						new_uniforms2B = generateGlossyLambertUniforms(Plastic_Cspec,normalMaps[5],cubemap,0.25,0.25,0.4,new THREE.Vector3(0.2,0.2,0.8));
+						new_material2A = createMaterial(new_uniforms2A,vertexLambGlossy,fragmentLambGlossy);
+						new_material2B = createMaterial(new_uniforms2B,vertexLambGlossy,fragmentLambGlossy);
+	
+						sample[1] = new THREE.Mesh(cube,GoldMetal);
+						sample[2] = new THREE.Mesh(cube,SilverMetal);
+						sample[3] = new THREE.Mesh(cube,AluminiumMetal);
+						sample[4] = new THREE.Mesh(cube,CopperMetal);
+						sample[5] = new THREE.Mesh(cube,new_material1A);
+						sample[6] = new THREE.Mesh(cube,new_material1B);
+						sample[7] = new THREE.Mesh(cube,new_material2A);
+						sample[8] = new THREE.Mesh(cube,new_material2B);
+		
+						scene.add(sample[1]);
+						scene.add(sample[2]);
+						scene.add(sample[3]);
+						scene.add(sample[4]);
+
+						scene.add(sample[5]);
+						scene.add(sample[6]);
+						scene.add(sample[7]);
+						scene.add(sample[8]);
+		
+						sample[1].position.x = 0;
+						sample[2].position.x = 6;
+						sample[3].position.x = -6;
+						sample[4].position.x = -12;
+
+						sample[5].position.x = 0;
+						sample[6].position.x = 6;
+						sample[7].position.x = -6;
+						sample[8].position.x = -12;
+
+						sample[5].position.y = 6;
+						sample[6].position.y = 6;
+						sample[7].position.y = 6;
+						sample[8].position.y = 6;
+						}
+
                        },)
                        ;
 
@@ -891,9 +995,9 @@
 					var loader = new THREE.CubeTextureLoader();
 					loader.setPath(path);
 					cubemap = loader.load( [
-					'px.png', 'nx.png',
-					'py.png', 'ny.png',
-					'pz.png', 'nz.png'
+					'px.jpg', 'nx.jpg',
+					'py.jpg', 'ny.jpg',
+					'pz.jpg', 'nz.jpg'
 				] );		
 				cubemap.minFilter = THREE.LinearMipMapLinearFilter;
 				return cubemap;
@@ -915,6 +1019,9 @@
 					normalMaps[1] = loadTexture('textures/normalmap_2.jpg');
 					normalMaps[2] = loadTexture('textures/normalmap_3.jpg');
 					normalMaps[3] = loadTexture('textures/normalmap_4.jpg');
+					normalMaps[4] = loadTexture('textures/normalmap_5.jpg');
+					normalMaps[5] = loadTexture('textures/normalmap_6.jpg');
+					normalMaps[6] = loadTexture('textures/normalmap_7.jpg');
 					console.log("normalmaps loaded succesfully!")
 				}
 
@@ -990,16 +1097,16 @@
 				function buildNewGUI() {
 					clearGUI();
 					
-					selezioneParte1 = gui.addFolder('Parte esterna');
-					selezioneParte2 = gui.addFolder('Pulsanti');
-					selezioneParte3 = gui.addFolder('Parte superiore');
-					selezioneParte5 = gui.addFolder('Parte interna');
-					selezioneParte4 = gui.addFolder('Elementi ergonomici');
+					selezioneParte1 = gui.addFolder('External part');
+					selezioneParte2 = gui.addFolder('Buttons');
+					selezioneParte3 = gui.addFolder('Top part');
+					selezioneParte5 = gui.addFolder('Internal part');
+					selezioneParte4 = gui.addFolder('Ergonomic elements');
 					
 
-					selezioneScena = gui.addFolder('Ambiente');
+					selezioneScena = gui.addFolder('Environment');
 
-					selezioneScena.add(parametriSelezioneScena, 'Ambiente',["Lago","Spiaggia","Shangai notturna","Abitazione","Venezia","Cielo stellato"]).onChange(
+					selezioneScena.add(ParametriSelezioneScena, 'Location',["Mountain lake","Beach","Shangai by night","House indoor","Venezia","Night sky"]).onChange(
 					function(value){
 						console.log("Hei! Cubemap needs to be updated!!");
 						updateSceneCubemap();
@@ -1007,105 +1114,122 @@
 					
 					);
 
-					selezioneParte1.add(parametriSelezioneModello.parte1,'Materiale',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio","Rame"]).onChange(
+					selezioneParte1.add(ParametriSelezioneModello.parte1,'Material',["Lucid plastic","Opaque plastic","Gold","Silver","Aluminium","Copper"]).onChange(
 					function( value ) {
 						console.log("Hey!, changed material on Part1");
 						updateMaterialType(1);
-						if(parametriSelezioneModello.parte1.Materiale == "Oro" || parametriSelezioneModello.parte1.Materiale =="Alluminio" || parametriSelezioneModello.parte1.Materiale =="Argento" || parametriSelezioneModello.parte1.Materiale =="Rame"){
+						updateSceneCubemap();
+						if(ParametriSelezioneModello.parte1.Material == "Gold" || ParametriSelezioneModello.parte1.Material =="Aluminium" || ParametriSelezioneModello.parte1.Material =="Silver" || ParametriSelezioneModello.parte1.Material =="Copper"){
 							colorPicker1.domElement.hidden = true;		
 						}else{
 							colorPicker1.domElement.hidden = false;
 						}
 					});
 			
-					colorPicker1 = selezioneParte1.addColor(parametriSelezioneModello.parte1,'Colore').onChange(
+					colorPicker1 = selezioneParte1.addColor(ParametriSelezioneModello.parte1,'Color').onChange(
 						function(value){
 						console.log("Hey! color changed on Part1");
 						updateMaterialType(1);	
+						updateSceneCubemap();
 					});
 
-					selezioneParte2.add(parametriSelezioneModello.parte2,'Materiale',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio","Rame"]).onChange(
+					selezioneParte2.add(ParametriSelezioneModello.parte2,'Material',["Lucid plastic","Opaque plastic","Gold","Silver","Aluminium","Copper"]).onChange(
 					function( value ) {
 						console.log("Hey!, changed material  on Part2");
 						updateMaterialType(2);
-						if(parametriSelezioneModello.parte2.Materiale == "Oro" || parametriSelezioneModello.parte2.Materiale =="Alluminio" || parametriSelezioneModello.parte2.Materiale =="Argento"  || parametriSelezioneModello.parte2.Materiale =="Rame"){
+						updateSceneCubemap();
+						if(ParametriSelezioneModello.parte2.Material == "Gold" || ParametriSelezioneModello.parte2.Material =="Aluminium" || ParametriSelezioneModello.parte2.Material =="Silver"  || ParametriSelezioneModello.parte2.Material =="Copper"){
 							colorPicker2.domElement.hidden = true;		
 						}else{
 							colorPicker2.domElement.hidden = false;
 						}
 					});
 			
-					colorPicker2 = selezioneParte2.addColor(parametriSelezioneModello.parte2,'Colore').onChange(
+					colorPicker2 = selezioneParte2.addColor(ParametriSelezioneModello.parte2,'Color').onChange(
 						function(value){
 						console.log("Hey! color changed on Part2");
 						updateMaterialType(2);	
+						updateSceneCubemap();
 					});
 
-					selezioneParte3.add(parametriSelezioneModello.parte3,'Materiale',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio","Rame"]).onChange(
+					selezioneParte3.add(ParametriSelezioneModello.parte3,'Material',["Lucid plastic","Opaque plastic","Gold","Silver","Aluminium","Copper"]).onChange(
 					function( value ) {
 						console.log("Hey!, changed material on Part3");
 						updateMaterialType(3);
-						if(parametriSelezioneModello.parte3.Materiale == "Oro" || parametriSelezioneModello.parte3.Materiale =="Alluminio" || parametriSelezioneModello.parte3.Materiale =="Argento"  || parametriSelezioneModello.parte3.Materiale =="Rame"){
+						updateSceneCubemap();
+						if(ParametriSelezioneModello.parte3.Material == "Gold" || ParametriSelezioneModello.parte3.Material =="Aluminium" || ParametriSelezioneModello.parte3.Material =="Silver"  || ParametriSelezioneModello.parte3.Material =="Copper"){
 							colorPicker3.domElement.hidden = true;		
 						}else{
 							colorPicker3.domElement.hidden = false;
 						}
 					});
 			
-					colorPicker3 = selezioneParte3.addColor(parametriSelezioneModello.parte3,'Colore').onChange(
+					colorPicker3 = selezioneParte3.addColor(ParametriSelezioneModello.parte3,'Color').onChange(
 						function(value){
 						console.log("Hey! color changed on Part3");
 						updateMaterialType(3);	
+						updateSceneCubemap();
 					});
 
-					selezioneParte4.add(parametriSelezioneModello.parte4,'Materiale',[ "Tessuto scuro", "Tessuto chiaro", ]).onChange(
+					selezioneParte4.add(ParametriSelezioneModello.parte4,'Material',[ "Dark fabric", "Light fabric", "Dark leather","Light leather"]).onChange(
 					function( value ) {
 						console.log("Hey!, changed material on Part4");
 						updateMaterialType(4);
+						updateSceneCubemap();
 					});
 
-					selezioneParte5.add(parametriSelezioneModello.parte5,'Materiale',["Plastica lucida","Plastica opaca","Oro","Argento","Alluminio","Rame"]).onChange(
+					selezioneParte5.add(ParametriSelezioneModello.parte5,'Material',["Lucid plastic","Opaque plastic","Gold","Silver","Aluminium","Copper"]).onChange(
 					function( value ) {
 						console.log("Hey!, changed material on Part5");
 						updateMaterialType(5);
-						if(parametriSelezioneModello.parte5.Materiale == "Oro" || parametriSelezioneModello.parte5.Materiale =="Alluminio" || parametriSelezioneModello.parte5.Materiale =="Argento" || parametriSelezioneModello.parte5.Materiale =="Rame"){
+						updateSceneCubemap();
+						if(ParametriSelezioneModello.parte5.Material == "Gold" || ParametriSelezioneModello.parte5.Material =="Aluminium" || ParametriSelezioneModello.parte5.Material =="Silver" || ParametriSelezioneModello.parte5.Material =="Copper"){
 							colorPicker5.domElement.hidden = true;		
 						}else{
 							colorPicker5.domElement.hidden = false;
 						}
 					});
 			
-					colorPicker5 = selezioneParte5.addColor(parametriSelezioneModello.parte5,'Colore').onChange(
+					colorPicker5 = selezioneParte5.addColor(ParametriSelezioneModello.parte5,'Color').onChange(
 						function(value){
 						console.log("Hey! color changed on Part5");
 						updateMaterialType(5);	
+						updateSceneCubemap();
 					});
 
 
 					// HIDE COLOR SELECTORS IF STARTING MATERIAL CAN'T CHANGE COLOR
-					if(parametriSelezioneModello.parte1.Materiale == "Oro" || parametriSelezioneModello.parte1.Materiale =="Alluminio" || parametriSelezioneModello.parte1.Materiale =="Argento" || parametriSelezioneModello.parte1.Materiale =="Rame"){
+					if(ParametriSelezioneModello.parte1.Material == "Gold" || ParametriSelezioneModello.parte1.Material =="Aluminium" || ParametriSelezioneModello.parte1.Material =="Silver" || ParametriSelezioneModello.parte1.Material =="Copper"){
 							colorPicker1.domElement.hidden = true;		
 						}else{
 							colorPicker1.domElement.hidden = false;
 					}
 	
-					if(parametriSelezioneModello.parte2.Materiale == "Oro" || parametriSelezioneModello.parte2.Materiale =="Alluminio" || parametriSelezioneModello.parte2.Materiale =="Argento" || parametriSelezioneModello.parte2.Materiale =="Rame"){
+					if(ParametriSelezioneModello.parte2.Material == "Gold" || ParametriSelezioneModello.parte2.Material =="Aluminium" || ParametriSelezioneModello.parte2.Material =="Silver" || ParametriSelezioneModello.parte2.Material =="Copper"){
 							colorPicker2.domElement.hidden = true;		
 						}else{
 							colorPicker2.domElement.hidden = false;
 					}
 		
-					if(parametriSelezioneModello.parte3.Materiale == "Oro" || parametriSelezioneModello.parte3.Materiale =="Alluminio" || parametriSelezioneModello.parte3.Materiale =="Argento" || parametriSelezioneModello.parte3.Materiale =="Rame"){
+					if(ParametriSelezioneModello.parte3.Material == "Gold" || ParametriSelezioneModello.parte3.Material =="Aluminium" || ParametriSelezioneModello.parte3.Material =="Silver" || ParametriSelezioneModello.parte3.Material =="Copper"){
 							colorPicker3.domElement.hidden = true;		
 						}else{
 							colorPicker3.domElement.hidden = false;
 					}
 
-					if(parametriSelezioneModello.parte5.Materiale == "Oro" || parametriSelezioneModello.parte5.Materiale =="Alluminio" || parametriSelezioneModello.parte5.Materiale =="Argento" || parametriSelezioneModello.parte5.Materiale =="Rame"){
+					if(ParametriSelezioneModello.parte5.Material == "Gold" || ParametriSelezioneModello.parte5.Material =="Aluminium" || ParametriSelezioneModello.parte5.Material =="Silver" || ParametriSelezioneModello.parte5.Material =="Copper"){
 							colorPicker5.domElement.hidden = true;		
 						}else{
 							colorPicker5.domElement.hidden = false;
 					}
+
+					// start gui as open
+					selezioneParte1.closed = false;
+					selezioneParte2.closed = false;
+					selezioneParte3.closed = false;
+					selezioneParte4.closed = false;
+					selezioneParte5.closed = false;
+					selezioneScena.closed = false;
 				
 				}
 

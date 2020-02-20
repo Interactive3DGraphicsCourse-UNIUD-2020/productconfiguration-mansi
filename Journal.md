@@ -127,7 +127,7 @@ Immagine del primo test di rendering (plastica opaca e lucida):
 #### Giorno 6: 16/02/2020
 
 ### Lavoro svolto:
-- Unito il comportamento dello shader glossy e quello lambertiano:
+- Unito il comportamento dello shader glossy e quello lambertiano+microfacet:
   - Il risultato è uno shader che permette di illuminare l'oggetto con la cubemap, di passare una normalMap, inoltre permette di illuminare l'oggetto con ulteriori luci presenti sulla scena.
   Il risultato è osservabile nell'immagine sottostante.
     - (a) Shader glossy reflection from cubemap
@@ -178,7 +178,7 @@ Immagine del primo test di rendering (plastica opaca e lucida):
 Final tweaks ROADMAP [ver 2]
 | n° | Task |
 | :---:        |    :----:   |
-| 1 | Cambiare la risoluzione delle cubemap (4K è eccessivo)|
+| 1 | Cambiare la risoluzione delle cubemap (tempi di caricamento troppo elevati)|
 | 2 | Aggiungere qualche cubemap|
 | 3 | Aggiungere qualche materiale|
 | 4 | Migliorare il sito|
@@ -186,13 +186,26 @@ Final tweaks ROADMAP [ver 2]
 
 ---
 ---
-#### Giorno 9: xx/02/2020
+#### Giorno 9: 20/02/2020
+
+### Lavoro svolto:
+- Ridotta la dimensione delle cubemap di circa 2/3 passando da .png a .jpg (migliorato quindi il tempo di caricamento)
+- Correzzione dello shader: in un punto p la quantità di luce deve essere = componente luce envMap + componente speculare dalle luci + componente diffusiva delle luci. (precedentemente, la parte diffusiva veniva sommata senza considerare la parte speculare della envMap (si violava qundi la conservazione dell'energia) ((1-specular) x cdiff ora è (1-specular-envMap) x cdiff).
+- Miglioramento della GUI (modifiche estetiche per adattarle al sito).
+
+![GUI prima e dopo ](images/journal/img14.png)
+
+- Miglioramenti dei parametri dei vari materiali.
+- Aggiunti pelle/cuoio scuro e chiaro per i padiglioni.
+- Miglioramento del sito web.
 
 ---
 ---
 #### Giorno 10: xx/02/2020
 
+### Lavoro svolto:
 ---
 ---
 #### Giorno 11: xx/02/2020
 
+### Lavoro svolto:

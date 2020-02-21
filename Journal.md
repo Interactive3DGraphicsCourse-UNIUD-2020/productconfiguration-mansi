@@ -201,11 +201,12 @@ Final tweaks ROADMAP [ver 2]
 
 ---
 ---
-#### Giorno 10: xx/02/2020
+#### Giorno 10: 21/02/2020
 
 ### Lavoro svolto:
+- piccoli miglioramenti
+- prima versione del README
+- aggiunte 3 cubemaps
 ---
 ---
-#### Giorno 11: xx/02/2020
 
-### Lavoro svolto:

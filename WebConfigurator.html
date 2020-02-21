@@ -607,7 +607,7 @@
 				var numberOfLights = 3;
 
 				// lights for BRDF
-				var PointLightPosition1 = new THREE.Vector3(0,10,7);
+				var PointLightPosition1 = new THREE.Vector3(0,7,75);
 				var PointLightPosition2 = new THREE.Vector3(-19,0,-17);
 				var PointLightPosition3 = new THREE.Vector3(19,0,-17);
 
@@ -701,6 +701,15 @@
 					}else if(Location == "Venezia"){
 						scene.background = cubemaps[4];
 						updateMaterialsCubemap(4);
+					}else if(Location == "Forest"){
+						scene.background = cubemaps[6];
+						updateMaterialsCubemap(6);
+					}else if(Location == "Road overpass"){
+						scene.background = cubemaps[7];
+						updateMaterialsCubemap(7);
+					}else if(Location == "Rome garden"){
+						scene.background = cubemaps[8];
+						updateMaterialsCubemap(8);
 					}
 				}
 
@@ -1010,6 +1019,9 @@
 					cubemaps[3] = LoadCubeMap( 'textures/cubemap_4/');
 					cubemaps[4] = LoadCubeMap( 'textures/cubemap_5/');
 					cubemaps[5] = LoadCubeMap( 'textures/cubemap_6/');
+					cubemaps[6] = LoadCubeMap( 'textures/cubemap_7/');
+					cubemaps[7] = LoadCubeMap( 'textures/cubemap_8/');
+					cubemaps[8] = LoadCubeMap( 'textures/cubemap_9/');
 					console.log("cubemaps loaded succesfully!")
 				}
 
@@ -1106,7 +1118,7 @@
 
 					selezioneScena = gui.addFolder('Environment');
 
-					selezioneScena.add(ParametriSelezioneScena, 'Location',["Mountain lake","Beach","Shangai by night","House indoor","Venezia","Night sky"]).onChange(
+					selezioneScena.add(ParametriSelezioneScena, 'Location',["Mountain lake","Beach","Shangai by night","House indoor","Venezia","Night sky", "Forest", "Rome garden", "Road overpass"]).onChange(
 					function(value){
 						console.log("Hei! Cubemap needs to be updated!!");
 						updateSceneCubemap();
